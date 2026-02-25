@@ -1,5 +1,9 @@
 import { BeenoConfig } from './types.js';
 
+const REQUEST_TIMEOUT_MS = 30_000;
+const MAX_PAGES = 50;
+const MAX_RESULTS = 5_000;
+
 export class BeenoApiClient {
   private baseUrl: string;
   private apiKey: string;
@@ -59,7 +63,8 @@ export class BeenoApiClient {
     const url = this.buildUrl(path, params);
     const response = await fetch(url, {
       method: 'GET',
-      headers: this.getHeaders()
+      headers: this.getHeaders(),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
     });
     return this.handleResponse(response, `GET ${path}`);
   }
@@ -69,7 +74,8 @@ export class BeenoApiClient {
     const response = await fetch(url, {
       method: 'POST',
       headers: this.getHeaders(),
-      body: body ? JSON.stringify(body) : undefined
+      body: body ? JSON.stringify(body) : undefined,
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
     });
     return this.handleResponse(response, `POST ${path}`);
   }
@@ -79,7 +85,8 @@ export class BeenoApiClient {
     const response = await fetch(url, {
       method: 'PATCH',
       headers: this.getHeaders(),
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
     });
     return this.handleResponse(response, `PATCH ${path}`);
   }
@@ -88,7 +95,8 @@ export class BeenoApiClient {
     const url = this.buildUrl(path);
     const response = await fetch(url, {
       method: 'DELETE',
-      headers: this.getHeaders()
+      headers: this.getHeaders(),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
     });
     return this.handleResponse(response, `DELETE ${path}`);
   }
@@ -97,6 +105,7 @@ export class BeenoApiClient {
     let allResults: any[] = [];
     let cursor: string | null = null;
     let total = 0;
+    let pages = 0;
 
     do {
       const pageBody = { ...body };
@@ -105,20 +114,25 @@ export class BeenoApiClient {
       const data = await this.post(path, pageBody);
       total = data.total || total;
 
-      if (data.results) {
-        allResults = allResults.concat(data.results);
-      }
+      if (!data.results || data.results.length === 0) break;
+
+      allResults = allResults.concat(data.results);
+      pages++;
+
+      if (pages >= MAX_PAGES || allResults.length >= MAX_RESULTS) break;
+      if (total > 0 && allResults.length >= total) break;
 
       cursor = data.cursor?.next || null;
     } while (cursor);
 
-    return { total, results: allResults, fetched: allResults.length };
+    return { total, results: allResults, fetched: allResults.length, truncated: allResults.length < total };
   }
 
   async getAllPages(path: string, params?: Record<string, string>): Promise<any> {
     let allResults: any[] = [];
     let cursor: string | null = null;
     let total = 0;
+    let pages = 0;
 
     do {
       const pageParams = { ...params };
@@ -127,14 +141,18 @@ export class BeenoApiClient {
       const data = await this.get(path, pageParams);
       total = data.total || total;
 
-      if (data.results) {
-        allResults = allResults.concat(data.results);
-      }
+      if (!data.results || data.results.length === 0) break;
+
+      allResults = allResults.concat(data.results);
+      pages++;
+
+      if (pages >= MAX_PAGES || allResults.length >= MAX_RESULTS) break;
+      if (total > 0 && allResults.length >= total) break;
 
       cursor = data.cursor?.next || null;
     } while (cursor);
 
-    return { total, results: allResults, fetched: allResults.length };
+    return { total, results: allResults, fetched: allResults.length, truncated: allResults.length < total };
   }
 
   async postWhatsApp(templateId: string, body: any): Promise<any> {
@@ -148,7 +166,8 @@ export class BeenoApiClient {
         'authorization': this.whatsappApiKey,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
     });
     return this.handleResponse(response, `POST WhatsApp template/${templateId}`);
   }
