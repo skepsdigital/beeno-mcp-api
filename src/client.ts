@@ -101,8 +101,9 @@ export class BeenoApiClient {
     return this.handleResponse(response, `DELETE ${path}`);
   }
 
-  async postAllPages(path: string, body: any): Promise<any> {
+  async postAllPages(path: string, body: any, maxResults = MAX_RESULTS): Promise<any> {
     let allResults: any[] = [];
+    const seen = new Set<number | string>();
     let cursor: string | null = null;
     let total = 0;
     let pages = 0;
@@ -116,43 +117,26 @@ export class BeenoApiClient {
 
       if (!data.results || data.results.length === 0) break;
 
-      allResults = allResults.concat(data.results);
+      for (const item of data.results) {
+        const id = item.id;
+        if (id != null && seen.has(id)) continue;
+        if (id != null) seen.add(id);
+        allResults.push(item);
+      }
       pages++;
 
-      if (pages >= MAX_PAGES || allResults.length >= MAX_RESULTS) break;
+      if (pages >= MAX_PAGES || allResults.length >= maxResults) break;
       if (total > 0 && allResults.length >= total) break;
 
       cursor = data.cursor?.next || null;
     } while (cursor);
 
-    return { total, results: allResults, fetched: allResults.length, truncated: allResults.length < total };
-  }
-
-  async getAllPages(path: string, params?: Record<string, string>): Promise<any> {
-    let allResults: any[] = [];
-    let cursor: string | null = null;
-    let total = 0;
-    let pages = 0;
-
-    do {
-      const pageParams = { ...params };
-      if (cursor) pageParams.cursor = cursor;
-
-      const data = await this.get(path, pageParams);
-      total = data.total || total;
-
-      if (!data.results || data.results.length === 0) break;
-
-      allResults = allResults.concat(data.results);
-      pages++;
-
-      if (pages >= MAX_PAGES || allResults.length >= MAX_RESULTS) break;
-      if (total > 0 && allResults.length >= total) break;
-
-      cursor = data.cursor?.next || null;
-    } while (cursor);
-
-    return { total, results: allResults, fetched: allResults.length, truncated: allResults.length < total };
+    allResults = allResults.slice(0, maxResults);
+    const truncated = total > 0 && allResults.length < total;
+    return {
+      total, results: allResults, fetched: allResults.length, truncated,
+      ...(truncated ? { message: `Results limited to ${allResults.length} of ${total}. Use maxResults to increase (max 5000) or paginate manually.` } : {})
+    };
   }
 
   async postWhatsApp(templateId: string, body: any): Promise<any> {

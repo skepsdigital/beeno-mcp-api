@@ -7,7 +7,7 @@ export function registerNoteTools(server: McpServer, client: BeenoApiClient): vo
   // 1. List notes
   server.tool(
     'beeno_notes_list',
-    'List all notes associated with a deal or contact in Rvops CRM.',
+    'List all notes associated with a deal or contact in Beeno CRM.',
     {
       fromObject: z.enum(['deal', 'contact']).describe('The type of object to list notes from'),
       fromObjectId: z.string().describe('The ID of the deal or contact')
@@ -25,7 +25,7 @@ export function registerNoteTools(server: McpServer, client: BeenoApiClient): vo
   // 2. Create a note
   server.tool(
     'beeno_notes_create',
-    'Create a new note on a deal or contact in Rvops CRM.',
+    'Create a new note on a deal or contact in Beeno CRM.',
     {
       fromObject: z.enum(['deal', 'contact']).describe('The type of object to attach the note to'),
       fromObjectId: z.string().describe('The ID of the deal or contact'),
@@ -55,7 +55,7 @@ export function registerNoteTools(server: McpServer, client: BeenoApiClient): vo
   // 3. Delete a note
   server.tool(
     'beeno_notes_delete',
-    'Permanently delete a note from Rvops CRM. This action cannot be undone.',
+    'Permanently delete a note from Beeno CRM. This action cannot be undone.',
     {
       noteId: z.string().describe('The ID of the note to delete')
     },

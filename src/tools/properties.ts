@@ -9,12 +9,44 @@ export function registerPropertyTools(server: McpServer, client: BeenoApiClient)
     'beeno_properties_list',
     'List all properties for a given object type. Each property has an "alias" field which is the internal name to use in filters/search (propertyName). The "label" is the display name.',
     {
-      objectType: z.enum(['deal', 'contact', 'company']).describe('Object type to list properties for')
+      objectType: z.enum(['deal', 'contact', 'company']).describe('Object type to list properties for'),
+      filter: z.string().optional().describe('Filter properties by alias or label (substring, case-insensitive)'),
+      includeOptions: z.boolean().optional().describe('Include full options array for select/multiselect properties (default: false)')
     },
     async (params) => {
       try {
         const result = await client.get(`/properties/${params.objectType}`);
-        return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+
+        const properties: any[] = Array.isArray(result) ? result : (result?.results || result?.properties || [result]);
+
+        let summarized = properties.map((prop: any) => {
+          const summary: Record<string, any> = {
+            alias: prop.alias,
+            label: prop.label,
+            type: prop.type,
+            group: prop.group
+          };
+
+          if (prop.type === 'select' || prop.type === 'multiselect') {
+            const options = prop.properties?.list || prop.options || [];
+            summary.optionsCount = options.length;
+            if (params.includeOptions) {
+              summary.options = options;
+            }
+          }
+
+          return summary;
+        });
+
+        if (params.filter) {
+          const filterLower = params.filter.toLowerCase();
+          summarized = summarized.filter((prop: any) =>
+            (prop.alias && prop.alias.toLowerCase().includes(filterLower)) ||
+            (prop.label && prop.label.toLowerCase().includes(filterLower))
+          );
+        }
+
+        return { content: [{ type: 'text' as const, text: JSON.stringify(summarized, null, 2) }] };
       } catch (error: any) {
         return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
       }

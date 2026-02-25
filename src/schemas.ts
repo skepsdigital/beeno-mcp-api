@@ -21,3 +21,10 @@ export const sortSchema = {
     .describe('Sort field (default: date_modified)'),
   order: z.enum(['asc', 'desc']).optional().describe('Sort direction (default: desc)')
 };
+
+export const fetchAllSchema = {
+  fetchAll: z.boolean().optional()
+    .describe('If true, auto-paginates and returns all results (up to 5000). Use maxResults to cap.'),
+  maxResults: z.number().min(1).max(5000).optional()
+    .describe('Optional cap on results when fetchAll=true (default: all, max: 5000)')
+};

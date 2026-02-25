@@ -9,7 +9,7 @@ export function registerCommunicationTools(server: McpServer, client: BeenoApiCl
     'beeno_whatsapp_send_template',
     'BETA. Send a WhatsApp template message. Requires RVOPS_WHATSAPP_API_KEY env var.',
     {
-      templateId: z.string().describe('Rvops template ID'),
+      templateId: z.string().describe('Beeno template ID'),
       variables: z.array(z.string()).optional().describe('Template variable values in order'),
       numberTo: z.string().describe('Recipient WhatsApp number'),
       numberFrom: z.string().describe('Sender WhatsApp number'),

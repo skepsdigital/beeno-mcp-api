@@ -1,14 +1,14 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { BeenoApiClient } from '../client.js';
-import { filterSchema, paginationSchema, sortSchema } from '../schemas.js';
+import { filterSchema, fetchAllSchema, paginationSchema, sortSchema } from '../schemas.js';
 
 export function registerTaskTools(server: McpServer, client: BeenoApiClient): void {
 
   // 1. List tasks
   server.tool(
     'beeno_tasks_list',
-    'List tasks from Rvops CRM with pagination and sorting support.',
+    'List tasks from Beeno CRM with pagination and sorting support.',
     {
       ...paginationSchema,
       ...sortSchema
@@ -32,7 +32,7 @@ export function registerTaskTools(server: McpServer, client: BeenoApiClient): vo
   // 2. Read a single task
   server.tool(
     'beeno_tasks_read',
-    'Read a single task by ID from Rvops CRM, returning all properties.',
+    'Read a single task by ID from Beeno CRM, returning all properties.',
     {
       taskId: z.string().describe('The ID of the task to read')
     },
@@ -49,7 +49,7 @@ export function registerTaskTools(server: McpServer, client: BeenoApiClient): vo
   // 3. Create a task
   server.tool(
     'beeno_tasks_create',
-    'Create a new task in Rvops CRM with optional associations to deals and contacts.',
+    'Create a new task in Beeno CRM with optional associations to deals and contacts.',
     {
       properties: z.object({
         name: z.string().describe('Task name'),
@@ -77,7 +77,7 @@ export function registerTaskTools(server: McpServer, client: BeenoApiClient): vo
   // 4. Update a task
   server.tool(
     'beeno_tasks_update',
-    'Update an existing task in Rvops CRM. Only provided properties will be updated.',
+    'Update an existing task in Beeno CRM. Only provided properties will be updated.',
     {
       taskId: z.string().describe('The ID of the task to update'),
       properties: z.record(z.any()).describe('Task properties to update as key-value pairs')
@@ -95,7 +95,7 @@ export function registerTaskTools(server: McpServer, client: BeenoApiClient): vo
   // 5. Delete a task
   server.tool(
     'beeno_tasks_delete',
-    'Permanently delete a task from Rvops CRM. This action cannot be undone.',
+    'Permanently delete a task from Beeno CRM. This action cannot be undone.',
     {
       taskId: z.string().describe('The ID of the task to delete')
     },
@@ -118,7 +118,7 @@ export function registerTaskTools(server: McpServer, client: BeenoApiClient): vo
       ...paginationSchema,
       sort: sortSchema.sort,
       order: sortSchema.order,
-      fetchAll: z.boolean().optional().describe('If true, fetches all pages automatically (ignores limit/cursor)')
+      ...fetchAllSchema
     },
     async (params) => {
       try {
@@ -127,8 +127,8 @@ export function registerTaskTools(server: McpServer, client: BeenoApiClient): vo
         if (params.order !== undefined) body.order = params.order;
 
         if (params.fetchAll) {
-          const result = await client.postAllPages('/tasks/search', body);
-          return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+          const result = await client.postAllPages('/tasks/search', body, params.maxResults);
+          return { content: [{ type: 'text' as const, text: JSON.stringify(result) }] };
         }
 
         if (params.limit !== undefined) body.limit = params.limit;

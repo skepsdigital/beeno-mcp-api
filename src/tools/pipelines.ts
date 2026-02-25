@@ -7,7 +7,7 @@ export function registerPipelineTools(server: McpServer, client: BeenoApiClient)
   // 1. List pipelines
   server.tool(
     'beeno_pipelines_list',
-    'List all deal pipelines with their stages from Rvops CRM.',
+    'List all deal pipelines with their stages from Beeno CRM.',
     {},
     async (params) => {
       try {
@@ -22,7 +22,7 @@ export function registerPipelineTools(server: McpServer, client: BeenoApiClient)
   // 2. Create a pipeline
   server.tool(
     'beeno_pipelines_create',
-    'Create a new deal pipeline with stages in Rvops CRM. Probability must be a multiple of 10 (0-100). Name cannot contain \' " { } / \\',
+    'Create a new deal pipeline with stages in Beeno CRM. Probability must be a multiple of 10 (0-100). Name cannot contain \' " { } / \\',
     {
       name: z.string().describe('Pipeline name. Cannot contain \' " { } / \\'),
       stages: z.array(z.object({

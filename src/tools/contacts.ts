@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { BeenoApiClient } from '../client.js';
-import { filterSchema, paginationSchema, sortSchema } from '../schemas.js';
+import { filterSchema, fetchAllSchema, paginationSchema, sortSchema } from '../schemas.js';
 
 export function registerContactTools(server: McpServer, client: BeenoApiClient): void {
 
@@ -123,7 +123,7 @@ export function registerContactTools(server: McpServer, client: BeenoApiClient):
       ...paginationSchema,
       sort: sortSchema.sort,
       order: sortSchema.order,
-      fetchAll: z.boolean().optional().describe('If true, fetches all pages automatically (ignores limit/cursor)')
+      ...fetchAllSchema
     },
     async (params) => {
       try {
@@ -133,8 +133,8 @@ export function registerContactTools(server: McpServer, client: BeenoApiClient):
         if (params.order !== undefined) body.order = params.order;
 
         if (params.fetchAll) {
-          const result = await client.postAllPages('/contacts/search', body);
-          return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+          const result = await client.postAllPages('/contacts/search', body, params.maxResults);
+          return { content: [{ type: 'text' as const, text: JSON.stringify(result) }] };
         }
 
         if (params.limit !== undefined) body.limit = params.limit;

@@ -1,14 +1,14 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { BeenoApiClient } from '../client.js';
-import { filterSchema, paginationSchema, sortSchema } from '../schemas.js';
+import { filterSchema, fetchAllSchema, paginationSchema, sortSchema } from '../schemas.js';
 
 export function registerProductTools(server: McpServer, client: BeenoApiClient): void {
 
   // 1. List products
   server.tool(
     'beeno_products_list',
-    'List products from Rvops CRM with pagination and sorting support.',
+    'List products from Beeno CRM with pagination and sorting support.',
     {
       ...paginationSchema,
       ...sortSchema
@@ -32,7 +32,7 @@ export function registerProductTools(server: McpServer, client: BeenoApiClient):
   // 2. Read a single product
   server.tool(
     'beeno_products_read',
-    'Read a single product by ID from Rvops CRM, returning all properties.',
+    'Read a single product by ID from Beeno CRM, returning all properties.',
     {
       productId: z.string().describe('The ID of the product to read')
     },
@@ -49,7 +49,7 @@ export function registerProductTools(server: McpServer, client: BeenoApiClient):
   // 3. Create a product
   server.tool(
     'beeno_products_create',
-    'Create a new product in Rvops CRM. Available properties: name, price, sku, frequency, unit_cost, url, months_term, description.',
+    'Create a new product in Beeno CRM. Available properties: name, price, sku, frequency, unit_cost, url, months_term, description.',
     {
       properties: z.record(z.any()).describe('Product properties as key-value pairs')
     },
@@ -66,7 +66,7 @@ export function registerProductTools(server: McpServer, client: BeenoApiClient):
   // 4. Update a product
   server.tool(
     'beeno_products_update',
-    'Update an existing product in Rvops CRM. Only provided properties will be updated.',
+    'Update an existing product in Beeno CRM. Only provided properties will be updated.',
     {
       productId: z.string().describe('The ID of the product to update'),
       properties: z.record(z.any()).describe('Product properties to update as key-value pairs')
@@ -84,7 +84,7 @@ export function registerProductTools(server: McpServer, client: BeenoApiClient):
   // 5. Delete a product
   server.tool(
     'beeno_products_delete',
-    'Permanently delete a product from Rvops CRM. This action cannot be undone.',
+    'Permanently delete a product from Beeno CRM. This action cannot be undone.',
     {
       productId: z.string().describe('The ID of the product to delete')
     },
@@ -107,7 +107,7 @@ export function registerProductTools(server: McpServer, client: BeenoApiClient):
       ...paginationSchema,
       sort: sortSchema.sort,
       order: sortSchema.order,
-      fetchAll: z.boolean().optional().describe('If true, fetches all pages automatically (ignores limit/cursor)')
+      ...fetchAllSchema
     },
     async (params) => {
       try {
@@ -116,8 +116,8 @@ export function registerProductTools(server: McpServer, client: BeenoApiClient):
         if (params.order !== undefined) body.order = params.order;
 
         if (params.fetchAll) {
-          const result = await client.postAllPages('/products/search', body);
-          return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+          const result = await client.postAllPages('/products/search', body, params.maxResults);
+          return { content: [{ type: 'text' as const, text: JSON.stringify(result) }] };
         }
 
         if (params.limit !== undefined) body.limit = params.limit;

@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { BeenoApiClient } from '../client.js';
-import { filterSchema, paginationSchema, sortSchema } from '../schemas.js';
+import { filterSchema, fetchAllSchema, paginationSchema, sortSchema } from '../schemas.js';
 
 export function registerDealTools(server: McpServer, client: BeenoApiClient): void {
 
@@ -124,7 +124,7 @@ export function registerDealTools(server: McpServer, client: BeenoApiClient): vo
       properties: z.array(z.string()).optional().describe('Property alias names to include in results'),
       ...paginationSchema,
       ...sortSchema,
-      fetchAll: z.boolean().optional().describe('If true, fetches all pages automatically (ignores limit/cursor)')
+      ...fetchAllSchema
     },
     async (params) => {
       try {
@@ -134,8 +134,8 @@ export function registerDealTools(server: McpServer, client: BeenoApiClient): vo
         if (params.order !== undefined) body.order = params.order;
 
         if (params.fetchAll) {
-          const result = await client.postAllPages('/deals/search', body);
-          return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+          const result = await client.postAllPages('/deals/search', body, params.maxResults);
+          return { content: [{ type: 'text' as const, text: JSON.stringify(result) }] };
         }
 
         if (params.limit !== undefined) body.limit = params.limit;
