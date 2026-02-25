@@ -1,8 +1,8 @@
 import { BeenoConfig } from './types.js';
 
 const REQUEST_TIMEOUT_MS = 30_000;
-const MAX_PAGES = 50;
-const MAX_RESULTS = 5_000;
+const MAX_PAGES = 500;
+
 
 export class BeenoApiClient {
   private baseUrl: string;
@@ -69,8 +69,8 @@ export class BeenoApiClient {
     return this.handleResponse(response, `GET ${path}`);
   }
 
-  async post(path: string, body?: any): Promise<any> {
-    const url = this.buildUrl(path);
+  async post(path: string, body?: any, params?: Record<string, string>): Promise<any> {
+    const url = this.buildUrl(path, params);
     const response = await fetch(url, {
       method: 'POST',
       headers: this.getHeaders(),
@@ -101,7 +101,7 @@ export class BeenoApiClient {
     return this.handleResponse(response, `DELETE ${path}`);
   }
 
-  async postAllPages(path: string, body: any, maxResults = MAX_RESULTS): Promise<any> {
+  async postAllPages(path: string, body: any, maxResults?: number): Promise<any> {
     let allResults: any[] = [];
     const seen = new Set<number | string>();
     let cursor: string | null = null;
@@ -112,10 +112,10 @@ export class BeenoApiClient {
     const MAX_STALE_PAGES = 2;
 
     do {
-      const pageBody = { ...body };
-      if (cursor) pageBody.cursor = cursor;
+      const queryParams: Record<string, string> = { limit: '100' };
+      if (cursor) queryParams.cursor = cursor;
 
-      const data = await this.post(path, pageBody);
+      const data = await this.post(path, body, queryParams);
       total = data.total || total;
 
       if (!data.results || data.results.length === 0) break;
@@ -137,7 +137,7 @@ export class BeenoApiClient {
         stalePages = 0;
       }
 
-      if (pages >= MAX_PAGES || allResults.length >= maxResults) break;
+      if (pages >= MAX_PAGES || (maxResults && allResults.length >= maxResults)) break;
       if (total > 0 && allResults.length >= total) break;
 
       const nextCursor = data.cursor?.next || null;
@@ -146,7 +146,7 @@ export class BeenoApiClient {
       cursor = nextCursor;
     } while (cursor);
 
-    allResults = allResults.slice(0, maxResults);
+    if (maxResults) allResults = allResults.slice(0, maxResults);
     const truncated = total > 0 && allResults.length < total;
     return {
       total, results: allResults, fetched: allResults.length, truncated,

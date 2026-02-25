@@ -24,7 +24,7 @@ export const sortSchema = {
 
 export const fetchAllSchema = {
   fetchAll: z.boolean().optional()
-    .describe('If true, auto-paginates and returns all results (up to 5000). Use maxResults to cap.'),
-  maxResults: z.number().min(1).max(5000).optional()
-    .describe('Optional cap on results when fetchAll=true (default: all, max: 5000)')
+    .describe('If true, auto-paginates and returns all results. Use maxResults to cap.'),
+  maxResults: z.number().min(1).optional()
+    .describe('Optional cap on results when fetchAll=true (default: all)')
 };

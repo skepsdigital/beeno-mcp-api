@@ -132,10 +132,11 @@ export function registerCompanyTools(server: McpServer, client: BeenoApiClient):
           return { content: [{ type: 'text' as const, text: JSON.stringify(result) }] };
         }
 
-        if (params.limit !== undefined) body.limit = params.limit;
-        if (params.cursor !== undefined) body.cursor = params.cursor;
+        const queryParams: Record<string, string> = {};
+        if (params.limit !== undefined) queryParams.limit = String(params.limit);
+        if (params.cursor !== undefined) queryParams.cursor = params.cursor;
 
-        const result = await client.post('/companies/search', body);
+        const result = await client.post('/companies/search', body, queryParams);
         return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
       } catch (error: any) {
         return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
