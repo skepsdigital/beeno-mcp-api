@@ -105,8 +105,11 @@ export class BeenoApiClient {
     let allResults: any[] = [];
     const seen = new Set<number | string>();
     let cursor: string | null = null;
+    let prevCursor: string | null = null;
     let total = 0;
     let pages = 0;
+    let stalePages = 0;
+    const MAX_STALE_PAGES = 2;
 
     do {
       const pageBody = { ...body };
@@ -117,18 +120,30 @@ export class BeenoApiClient {
 
       if (!data.results || data.results.length === 0) break;
 
+      const sizeBefore = allResults.length;
       for (const item of data.results) {
         const id = item.id;
         if (id != null && seen.has(id)) continue;
         if (id != null) seen.add(id);
         allResults.push(item);
       }
+      const newItems = allResults.length - sizeBefore;
       pages++;
+
+      if (newItems === 0) {
+        stalePages++;
+        if (stalePages >= MAX_STALE_PAGES) break;
+      } else {
+        stalePages = 0;
+      }
 
       if (pages >= MAX_PAGES || allResults.length >= maxResults) break;
       if (total > 0 && allResults.length >= total) break;
 
-      cursor = data.cursor?.next || null;
+      const nextCursor = data.cursor?.next || null;
+      if (nextCursor && nextCursor === prevCursor) break;
+      prevCursor = cursor;
+      cursor = nextCursor;
     } while (cursor);
 
     allResults = allResults.slice(0, maxResults);
