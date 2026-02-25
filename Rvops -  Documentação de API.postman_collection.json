@@ -1,0 +1,2211 @@
+{
+  "info": {
+    "_postman_id": "0ef156cc-df9c-4669-821b-56e8ddcf9511",
+    "name": "Rvops -  Documentação de API",
+    "description": "A **API da Rvops** é uma ferramenta que oferece aos desenvolvedores a capacidade de acessar dados de objetos e outras informações essenciais dentro da plataforma. Com ela, é possível criar soluções exclusivas que atendam às necessidades específicas de negócios, indo além das funcionalidades e recursos fornecidos pela Rvops. Além disso, é possível integrar os Serviços Rvops com outras plataformas. Essa abordagem resulta em uma maior satisfação e fidelidade do cliente, pois as empresas podem adaptar suas estratégias de engajamento para atender às demandas de seu público-alvo.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "6404309"
+  },
+  "item": [
+    {
+      "name": "Contacts",
+      "item": [
+        {
+          "name": "search",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"filters\": [\n        {\n          \"value\": \"São Paulo\",\n          \"propertyName\": \"state\",\n          \"operator\": \"EQ\"\n        }\n      ],\n      \"properties\": [\"owner_id\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/contacts/search",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "contacts",
+                "search"
+              ]
+            },
+            "description": "Pesquise por contatos com base nos valores das propriedades.\n\n**Filters:**  \nFiltros que você deseja aplicar na sua busca devem ser passados como um array de objetos, podendo conter uma ou mais opções. Cada novo objeto no array será tratado como uma condição **E**. O campo `Filters` é obrigatório. Exemplo:\n\n``` json\njsonCopy code{\n  \"filters\": [\n    {\n      \"value\": \"São Paulo\",\n      \"propertyName\": \"state\",\n      \"operator\": \"EQ\"\n    },\n    {\n      \"values\": [\"2\", \"3\"],\n      \"propertyName\": \"points\",\n      \"operator\": \"IN\"\n    }\n  ]\n}\n\n ```\n\nIsso significa que a busca retornará contatos em que o estado seja igual a São Paulo **e** os pontos seja igual a 2 ou 3.\n\n**Operator:**\n\nNa Rvops, você tem várias opções de filtros para buscas. Confira os operadores disponíveis e suas descrições na tabela abaixo:\n\n| Operador | Descrição |\n| --- | --- |\n| `EQ` | Igual a |\n| `NEQ` | Diferente de |\n| `GT` | Maior que |\n| `LT` | Menor que |\n| `GTE` | Maior ou igual a |\n| `LTE` | Menor ou igual a |\n| `IN` | Contido em uma lista |\n| `NOT_IN` | Não contido em uma lista |\n| `HAS_PROPERTY` | Propriedade existe |\n| `NOT_HAS_PROPERTY` | Propriedade não existe |\n| `CONTAINS_TOKEN` | Contém a palavra específica |\n| `NOT_CONTAINS_TOKEN` | Não contém a palavra específica |\n\n**Importante:**\n\n- Para os operadores `IN` e `NOT_IN`, os valores devem ser passados em formato de array. Exemplo: `values: [\"valor1\", \"valor2\", \"valor3\"]`.\n    \n- Para os demais operadores, os valores devem ser passados como string. Exemplo: `\"valor\"`.\n    \n\n**Properties:**  \nPropriedades adicionais que você deseja incluir no retorno da sua busca devem ser passadas como um array. Exemplo: `value: [\"points\", \"state\"]`. O campo `Properties` é opcional; se não for informado, o retorno trará apenas as propriedades padrão.\n\n**Parâmetros opcionais:**\n\n- **sort**: Campo utilizado para ordenar os itens. Os campos disponíveis são: `date_modified`, `date_added`, `createdAt` e `updatedAt`. O padrão é `date_modified`.\n    \n- **order**: Direção da ordenação, podendo ser **decrescente** (`desc`) ou **ascendente** (`asc`). O padrão é **decrescente** (`desc`)."
+          },
+          "response": []
+        },
+        {
+          "name": "read",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/contacts/[contactId]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "contacts",
+                "[contactId]"
+              ]
+            },
+            "description": "Retorna o contato informado junto com todas as propriedades e objetos associados, como Empresas e Negócios. Para isso, é obrigatório fornecer o ID do contato."
+          },
+          "response": []
+        },
+        {
+          "name": "create",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"properties\": {\n        \"firstname\": \"Example name\",\n        \"email\": \"email@example.com\"\n    },\n    \"associations\": {\n\t\t\"deals\": [1],\n        \"companies\": [2, 3]\n\t}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/contacts",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "contacts"
+              ]
+            },
+            "description": "Cria o contato com as propriedades fornecidas e retorna uma cópia do objeto com todas as propriedades e o ID. É necessário informar as propriedades configuradas como obrigatórias.\n\nVocê também pode incluir associações com Negócios e Empresas, embora isso não seja obrigatório.\n\n**Importante:**\n\n- Propriedades do tipo MultiSelect devem ser informadas em forma de array, contendo os valores internos das opções escolhidas. Exemplo: `[\"valor1\", \"valor2\"]`.\n    \n- Propriedades do tipo Date e DateTime devem ser passadas no formato `YYYY-MM-DD HH:mm`.\n    \n- Os demais tipos de propriedades podem ser passadas como string."
+          },
+          "response": []
+        },
+        {
+          "name": "delete",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/contacts/[contactId]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "contacts",
+                "[contactId]"
+              ]
+            },
+            "description": "Deleta um contato a partir de seu ID. Isso também apagará todas as suas propriedades e associações com outros objetos (mas os objetos em si não serão excluídos).\n\nUm contato apagado não pode ser recuperado."
+          },
+          "response": []
+        },
+        {
+          "name": "update",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"properties\": {\n\t\t\"age\": \"22\",\n        \"state\": null\n\t}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/contacts/[contactId]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "contacts",
+                "[contactId]"
+              ]
+            },
+            "description": "Atualiza o contato com base no ID fornecido. Os valores das propriedades serão sobrescritos com os novos valores fornecidos. Para apagar o valor de uma propriedade, basta informá-la como `null`. Propriedades somente leitura e inexistentes serão ignoradas, e não é possível associar objetos durante a atualização.\n\n**Importante:**\n\n- Propriedades do tipo MultiSelect devem ser informadas em forma de array, contendo os valores internos das opções escolhidas. Exemplo: `[\"valor1\", \"valor2\"]`.\n    \n- Propriedades do tipo Date e DateTime devem ser passadas no formato `YYYY-MM-DD HH:mm`.\n    \n- Os demais tipos de propriedades podem ser passadas como string."
+          },
+          "response": []
+        },
+        {
+          "name": "list",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/contacts?limit=2&cursor=MTY4Nzg2ODQwMDAwMHw5ODI=&campaignId=1&segmentId=1&properties=owner_id, age",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "contacts"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "2"
+                },
+                {
+                  "key": "cursor",
+                  "value": "MTY4Nzg2ODQwMDAwMHw5ODI="
+                },
+                {
+                  "key": "campaignId",
+                  "value": "1",
+                  "description": "ID do Fluxo de Automação",
+                  "type": "text"
+                },
+                {
+                  "key": "segmentId",
+                  "value": "1",
+                  "description": "ID do Segmento",
+                  "type": "text"
+                },
+                {
+                  "key": "properties",
+                  "value": "owner_id, age",
+                  "description": "Propriedades para visualização",
+                  "type": "text"
+                }
+              ]
+            },
+            "description": "Lista todos os contatos, limitando a 100 contatos por chamada. Existem alguns parâmetros opcionais que podem ser utilizados:\n\n- **Limit**: Limita a quantidade de contatos listados, com um mínimo de 1 e máximo de 100.\n    \n- **Cursor**: Cursor da próxima página da requisição, retornado sempre que houver mais contatos além dos exibidos até o momento.\n    \n- **CampaignId**: ID do fluxo de automação, retorna os contatos que atendem aos requisitos desse fluxo. O ID pode ser obtido dentro do CRM.\n    \n- **SegmentId**: ID do segmento, retorna os contatos que pertencem a esse segmento. O ID pode ser obtido dentro do CRM.\n    \n- **Properties**: Nome interno das propriedades extras que deseja trazer. Pode informar quantas desejar; caso não informe nenhuma, serão retornadas apenas as propriedades padrão.\n    \n- **sort**: Campo utilizado para ordenar os itens. Os campos disponíveis são: `date_modified`, `date_added`, `createdAt` e `updatedAt`. O padrão é `date_modified`.\n    \n- **order**: Direção da ordenação, podendo ser **decrescente** (`desc`) ou **ascendente** (`asc`). O padrão é **decrescente** (`desc`).\n    \n- **includeAssociations:** Define se os objetos associados devem ser incluídos na resposta da requisição.\n    \n    - Se `true`: Os objetos associados serão listados junto ao objeto principal.\n        \n    - Se `false` ou **não informado**: Os objetos associados não serão listados.\n        \n\n**Importante:**\n\n- Se **CampaignId** e **SegmentId** forem informados na mesma requisição, serão retornados os contatos que existem em comum entre o Fluxo e o Segmento."
+          },
+          "response": []
+        }
+      ],
+      "description": "Na Rvops, os contatos armazenam informações sobre as pessoas que interagem com o seu negócio. Os endpoints de contatos permitem que você crie e gerencie registros de contatos em sua conta Rvops, bem como sincronize dados de contatos entre a Rvops e outros sistemas.\n\n[Clique aqui](https://help.eloz.io/central-de-ajuda-eloz-crm/crm/contatos) para conhecer mais sobre o Objeto Contato",
+      "auth": {
+        "type": "noauth"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Deals",
+      "item": [
+        {
+          "name": "search",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"filters\": [\n        {\n          \"values\": [\"3\", \"4\"],\n          \"propertyName\": \"xref_rd_id\",\n          \"operator\": \"EQ\"\n        }\n      ],\n      \"properties\": [\"owner_id\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/deals/search",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "deals",
+                "search"
+              ]
+            },
+            "description": "Pesquise por negócios com base nos valores das propriedades.\n\n**Filters:**  \nFiltros que você deseja aplicar na sua busca devem ser passados como um array de objetos, podendo conter uma ou mais opções. Cada novo objeto no array será tratado como uma condição **E**. O campo `Filters` é obrigatório. Exemplo:\n\n``` json\njsonCopy code{\n  \"filters\": [\n    {\n      \"value\": \"10\",\n      \"propertyName\": \"amount\",\n      \"operator\": \"EQ\"\n    },\n    {\n      \"values\": [\"2\", \"3\"],\n      \"propertyName\": \"owner_id\",\n      \"operator\": \"IN\"\n    }\n  ]\n}\n\n ```\n\nIsso significa que a busca retornará os negócios em que o valor seja igual a 10 **e** o `owner_id` seja igual a 2 ou 3.\n\n**Operator:**\n\nNa Rvops, você tem várias opções de filtros para buscas. Confira os operadores disponíveis e suas descrições na tabela abaixo:\n\n| Operador | Descrição |\n| --- | --- |\n| `EQ` | Igual a |\n| `NEQ` | Diferente de |\n| `GT` | Maior que |\n| `LT` | Menor que |\n| `GTE` | Maior ou igual a |\n| `LTE` | Menor ou igual a |\n| `IN` | Contido em uma lista |\n| `NOT_IN` | Não contido em uma lista |\n| `HAS_PROPERTY` | Propriedade existe |\n| `NOT_HAS_PROPERTY` | Propriedade não existe |\n| `CONTAINS_TOKEN` | Contém a palavra específica |\n| `NOT_CONTAINS_TOKEN` | Não contém a palavra específica |\n\n**Importante:**\n\n- Para os operadores `IN` e `NOT_IN`, os valores devem ser passados em formato de array. Exemplo: `values: [\"valor1\", \"valor2\", \"valor3\"]`.\n    \n- Para os demais operadores, os valores devem ser passados como string. Exemplo: `value: \"valor\"`.\n    \n\n**Properties:**  \nPropriedades adicionais que você deseja incluir no retorno da sua busca devem ser passadas como um array. Exemplo: `[\"owner_id\", \"state\"]`. O campo `Properties` é opcional; se não for informado, o retorno trará apenas as propriedades padrão.\n\n**Parâmetros opcionais:**\n\n- **sort**: Campo utilizado para ordenar os itens. Os campos disponíveis são: `date_modified`, `date_added`, `createdAt` e `updatedAt`. O padrão é `date_modified`.\n    \n- **order**: Direção da ordenação, podendo ser **decrescente** (`desc`) ou **ascendente** (`asc`). O padrão é **decrescente** (`desc`)."
+          },
+          "response": []
+        },
+        {
+          "name": "read",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/deals/[id]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "deals",
+                "[id]"
+              ]
+            },
+            "description": "Retorna o negócio informado junto com todas as propriedades e objetos associados, como Empresas, Contatos e Produtos. Para isso, é obrigatório fornecer o ID do negócio."
+          },
+          "response": []
+        },
+        {
+          "name": "create",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"properties\": {\n\t\t\"pipeline_id\": 1,\n\t\t\"stage_id\": 2,\n\t\t\"name\": \"Novo negócio\",\n\t\t\"priority\": \"1\",\n\t\t\"owner_id\": 2\n\t},\n\t\"associations\": {\n\t\t\"products\": [\n\t\t\t{\n\t\t\t\t\"id\": 1027,\n\t\t\t\t\"quantity\": 12,\n\t\t\t\t\"linePrice\": 100\n\t\t\t}\n\t\t],\n        \"contacts\": [1]\n\t}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/deals",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "deals"
+              ]
+            },
+            "description": "Cria o negócio com as propriedades fornecidas e retorna uma cópia do objeto com todas as propriedades e o ID. É necessário informar as propriedades configuradas como obrigatórias.\n\nVocê também pode incluir associações com Contatos, Empresas e Produtos, embora isso não seja obrigatório.\n\n**Importante:**\n\n- Propriedades do tipo MultiSelect devem ser informadas em forma de array, contendo os valores internos das opções escolhidas. Exemplo: `[\"valor1\", \"valor2\"]`.\n    \n- Propriedades do tipo Date e DateTime devem ser passadas no formato `YYYY-MM-DD HH:mm`.\n    \n- Os demais tipos de propriedades podem ser passadas como string."
+          },
+          "response": []
+        },
+        {
+          "name": "delete",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/deals/[id]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "deals",
+                "[id]"
+              ]
+            },
+            "description": "Deleta o negócio a partir de seu ID. Isso também apagará todas as suas propriedades e associações com outros objetos (mas os objetos em si não serão excluídos).\n\nO negócio apagado não pode ser recuperado."
+          },
+          "response": []
+        },
+        {
+          "name": "update",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"properties\": {\n\t\t\"name\": \"Negócio atualizado\",\n\t\t\"priority\": \"2\"\n\t}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/deals/[dealId]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "deals",
+                "[dealId]"
+              ]
+            },
+            "description": "Atualiza o negócio com base no ID fornecido. Os valores das propriedades serão sobrescritos com os novos valores fornecidos. Para apagar o valor de uma propriedade, basta informá-la como `null`. Propriedades somente leitura e inexistentes serão ignoradas, e não é possível associar objetos durante a atualização.\n\n**Importante:**\n\n- Propriedades do tipo MultiSelect devem ser informadas em forma de array, contendo os valores internos das opções escolhidas. Exemplo: `[\"valor1\", \"valor2\"]`.\n    \n- Propriedades do tipo Date e DateTime devem ser passadas no formato `YYYY-MM-DD HH:mm`.\n    \n- Os demais tipos de propriedades podem ser passadas como string."
+          },
+          "response": []
+        },
+        {
+          "name": "list",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/deals?limit=2&cursor=MTY4ODk5OTgwOTAwMHw5&properties=owner_id",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "deals"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "2"
+                },
+                {
+                  "key": "cursor",
+                  "value": "MTY4ODk5OTgwOTAwMHw5"
+                },
+                {
+                  "key": "properties",
+                  "value": "owner_id",
+                  "description": "Propriedades para visualização"
+                }
+              ]
+            },
+            "description": "Lista todos os negócios, limitando a 100 negócios por chamada. Existem alguns parâmetros opcionais que podem ser utilizados:\n\n- **Limit**: Limita a quantidade de contatos listados, com um mínimo de 1 e máximo de 100.\n    \n- **Cursor**: Cursor da próxima página da requisição, retornado sempre que houver mais negócios além dos exibidos até o momento.\n    \n- **Properties**: Nome interno das propriedades extras que deseja trazer. Pode informar quantas desejar; caso não informe nenhuma, serão retornadas apenas as propriedades padrão.\n    \n- **sort**: Campo utilizado para ordenar os itens. Os campos disponíveis são: `date_modified`, `date_added`, `createdAt` e `updatedAt`. O padrão é `date_modified`.\n    \n- **order**: Direção da ordenação, podendo ser **decrescente** (`desc`) ou **ascendente** (`asc`). O padrão é **decrescente** (`desc`).\n    \n- **includeAssociations:** Define se os objetos associados devem ser incluídos na resposta da requisição.\n    \n    - Se `true`: Os objetos associados serão listados junto ao objeto principal.\n        \n    - Se `false` ou **não informado**: Os objetos associados não serão listados."
+          },
+          "response": []
+        },
+        {
+          "name": "replace Products",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"products\": [\n\t\t{\n\t\t\t\"productId\": 19,\n\t\t\t\"quantity\": \"2\",\n\t\t\t\"linePrice\": \"123\",\n\t\t\t\"isCustom\": 0\n\t\t},\n\t\t{\n\t\t\t\"quantity\": \"2\",\n\t\t\t\"linePrice\": \"100.50\",\n\t\t\t\"name\": \"Cria produto\",\n\t\t\t\"sku\": \"12345\",\n\t\t\t\"isCustom\": 1\n\t\t}\n\t]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/deals/products/[id]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "deals",
+                "products",
+                "[id]"
+              ]
+            },
+            "description": "Esta API substitui todos os produtos atuais da negociação pelos novos produtos informados.\n\nSe desejar manter os produtos existentes, é necessário incluí-los no array de produtos junto com os novos, garantindo que a lista contenha tanto os antigos quanto os novos produtos.\n\nNa **Rvops**, existem dois tipos de produtos:\n\n1. **Produtos da biblioteca** – Produtos previamente cadastrados na biblioteca de produtos. Para adicioná-los, informe:\n    \n    1. `productId` (ID do produto na biblioteca)\n        \n    2. `quantity` (quantidade)\n        \n    3. `linePrice` (preço unitário)\n        \n    4. `isCustom` (0 para produtos da biblioteca, 1 para customizados)\n        \n2. **Produtos customizados por negociação** – Produtos que não precisam estar cadastrados na biblioteca. Para adicioná-los, informe:\n    \n    - `quantity` (quantidade)\n        \n    - `linePrice` (preço unitário)\n        \n    - `name` (nome do produto)\n        \n    - `isCustom = 1` (indicando que é um produto customizado)\n        \n    - `sku` (opcional)\n        \n\nExemplo:\n\n``` json\n{\n    \"products\": [\n        {\n            \"productId\": 19,\n            \"quantity\": \"2\",\n            \"linePrice\": \"123\",\n            \"isCustom\": 0\n        },\n        {\n            \"quantity\": \"2\",\n            \"linePrice\": \"100.50\",\n            \"name\": \"Cria produto\",\n            \"sku\": \"12345\",\n            \"isCustom\": 1\n        }\n    ]\n}\n\n ```\n\nO exemplo do **body** acima adicionará à negociação:\n\n- 2 unidades do produto da biblioteca com **ID 19**, com valor unitário de **123**.\n    \n- Um produto customizado chamado **\"Cria produto\"**, com **2 unidades**, cada uma no valor de **109,50**, e **SKU 123**.\n    \n\n**Importante:** Ao utilizar esta API para atualizar os produtos da negociação, o valor total da negociação será recalculado automaticamente com base nos valores unitários e quantidades dos produtos adicionados."
+          },
+          "response": []
+        }
+      ],
+      "description": "Na Rvops, negócios representam transações com contatos ou empresas. Os negócios são acompanhados através do seu processo de vendas em etapas da pipeline até serem ganhos ou perdidos. Os endpoints de negócios permitem que você crie e gerencie registros de negócios, bem como sincronize dados de negócios entre a Rvops e outros sistemas.\n\n[Clique aqui](https://help.eloz.io/central-de-ajuda-eloz-crm/crm/negocios) para conhecer mais sobre o Objeto Negócio."
+    },
+    {
+      "name": "Companies",
+      "item": [
+        {
+          "name": "search",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"filters\": [\n        {\n          \"values\": [\"3\", \"4\"],\n          \"propertyName\": \"xref_rd_id\",\n          \"operator\": \"EQ\"\n        }\n      ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/companies/search",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "companies",
+                "search"
+              ]
+            },
+            "description": "Pesquise por empresas com base nos valores das propriedades.\n\n**Filters:**  \nFiltros que você deseja aplicar na sua busca devem ser passados como um array de objetos, podendo conter uma ou mais opções. Cada novo objeto no array será tratado como uma condição **E**. O campo `Filters` é obrigatório. Exemplo:\n\n``` json\njsonCopy code{\n  \"filters\": [\n    {\n      \"value\": \"São Paulo\",\n      \"propertyName\": \"companystate\",\n      \"operator\": \"EQ\"\n    },\n    {\n      \"values\": [\"2\", \"3\"],\n      \"propertyName\": \"owner_id\",\n      \"operator\": \"IN\"\n    }\n  ]\n}\n\n ```\n\nIsso significa que a busca retornará as empresas em que o estado seja igual a São Paulo **e** o `owner_id` seja igual a 2 ou 3.\n\n**Operator:**\n\nNa Rvops, você tem várias opções de filtros para buscas. Confira os operadores disponíveis e suas descrições na tabela abaixo:\n\n| Operador | Descrição |\n| --- | --- |\n| `EQ` | Igual a |\n| `NEQ` | Diferente de |\n| `GT` | Maior que |\n| `LT` | Menor que |\n| `GTE` | Maior ou igual a |\n| `LTE` | Menor ou igual a |\n| `IN` | Contido em uma lista |\n| `NOT_IN` | Não contido em uma lista |\n| `HAS_PROPERTY` | Propriedade existe |\n| `NOT_HAS_PROPERTY` | Propriedade não existe |\n| `CONTAINS_TOKEN` | Contém a palavra específica |\n| `NOT_CONTAINS_TOKEN` | Não contém a palavra específica |\n\n**Importante:**\n\n- Para os operadores `IN` e `NOT_IN`, os valores devem ser passados em formato de array. Exemplo: `values: [\"valor1\", \"valor2\", \"valor3\"]`.\n    \n- Para os demais operadores, os valores devem ser passados como string. Exemplo: `value: \"valor\"`.\n    \n\n**Properties:**  \nPropriedades adicionais que você deseja incluir no retorno da sua busca devem ser passadas como um array. Exemplo: `[\"owner_id\", \"companystate\"]`. O campo `Properties` é opcional; se não for informado, o retorno trará apenas as propriedades padrão.\n\n**Parâmetros opcionais:**\n\n- **sort**: Campo utilizado para ordenar os itens. Os campos disponíveis são: `date_modified`, `date_added`, `createdAt` e `updatedAt`. O padrão é `date_modified`.\n    \n- **order**: Direção da ordenação, podendo ser **decrescente** (`desc`) ou **ascendente** (`asc`). O padrão é **decrescente** (`desc`)."
+          },
+          "response": []
+        },
+        {
+          "name": "read",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/companies/[id]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "companies",
+                "[id]"
+              ]
+            },
+            "description": "Retorna a empresa informada junto com todas as propriedades e objetos associados, como Contatos e Negócios. Para isso, é obrigatório fornecer o ID da empresa."
+          },
+          "response": []
+        },
+        {
+          "name": "create",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"properties\": {\n\t\t\"companyname\": \"Eloz CRM\",\n        \"companywebsite\": \"https://eloz.io/\"\n\t},\n\t\"associations\": {\n\t\t\"contacts\": [1],\n\t\t\"deals\": [1]\n\t}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/companies",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "companies"
+              ]
+            },
+            "description": "Cria a empresa com as propriedades fornecidas e retorna uma cópia do objeto com todas as propriedades e o ID. É necessário informar as propriedades configuradas como obrigatórias.\n\nVocê também pode incluir associações com Contatos e Negócios, embora isso não seja obrigatório.\n\n**Importante:**\n\n- Propriedades do tipo MultiSelect devem ser informadas em forma de array, contendo os valores internos das opções escolhidas. Exemplo: `[\"valor1\", \"valor2\"]`.\n    \n- Propriedades do tipo Date e DateTime devem ser passadas no formato `YYYY-MM-DD HH:mm`.\n    \n- Os demais tipos de propriedades podem ser passadas como string."
+          },
+          "response": []
+        },
+        {
+          "name": "delete",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/companies/[ID]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "companies",
+                "[ID]"
+              ]
+            },
+            "description": "Deleta a empresa a partir de seu ID. Isso também apagará todas as suas propriedades e associações com outros objetos (mas os objetos em si não serão excluídos).\n\nA empresa apagada não pode ser recuperada."
+          },
+          "response": []
+        },
+        {
+          "name": "update",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"properties\": {\n\t\t\"companyname\": \"Nome da empresa atualizado\"\n\t}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/companies/[companyId]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "companies",
+                "[companyId]"
+              ]
+            },
+            "description": "Atualiza a empresa com base no ID fornecido. Os valores das propriedades serão sobrescritos com os novos valores fornecidos. Para apagar o valor de uma propriedade, basta informá-la como `null`. Propriedades somente leitura e inexistentes serão ignoradas, e não é possível associar objetos durante a atualização.\n\n**Importante:**\n\n- Propriedades do tipo MultiSelect devem ser informadas em forma de array, contendo os valores internos das opções escolhidas. Exemplo: `[\"valor1\", \"valor2\"]`.\n    \n- Propriedades do tipo Date e DateTime devem ser passadas no formato `YYYY-MM-DD HH:mm`.\n    \n- Os demais tipos de propriedades podem ser passadas como string."
+          },
+          "response": []
+        },
+        {
+          "name": "list",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/companies?limit=2&cursor=MTY4ODk5OTgwOTAwMHw5&properties=owner_id",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "2"
+                },
+                {
+                  "key": "cursor",
+                  "value": "MTY4ODk5OTgwOTAwMHw5"
+                },
+                {
+                  "key": "properties",
+                  "value": "owner_id",
+                  "description": "Propriedades para visualização"
+                }
+              ]
+            },
+            "description": "Lista todas as empresas, limitando a 100 empresas por chamada. Existem alguns parâmetros opcionais que podem ser utilizados:\n\n- **Limit**: Limita a quantidade de contatos listados, com um mínimo de 1 e máximo de 100.\n    \n- **Cursor**: Cursor da próxima página da requisição, retornado sempre que houver mais empresas além dos exibidos até o momento.\n    \n- **Properties**: Nome interno das propriedades extras que deseja trazer. Pode informar quantas desejar; caso não informe nenhuma, serão retornadas apenas as propriedades padrão.\n    \n- **sort**: Campo utilizado para ordenar os itens. Os campos disponíveis são: `date_modified`, `date_added`, `createdAt` e `updatedAt`. O padrão é `date_modified`.\n    \n- **order**: Direção da ordenação, podendo ser **decrescente** (`desc`) ou **ascendente** (`asc`). O padrão é **decrescente** (`desc`).\n    \n- **includeAssociations:** Define se os objetos associados devem ser incluídos na resposta da requisição.\n    \n    - Se `true`: Os objetos associados serão listados junto ao objeto principal.\n        \n    - Se `false` ou **não informado**: Os objetos associados não serão listados."
+          },
+          "response": []
+        }
+      ],
+      "description": "Na Rvops, as empresas armazenam informações sobre as organizações que interagem com o seu negócio e/ou contato. Os endpoints de empresas permitem que você crie e gerencie registros de empresas, bem como sincronize dados de empresas entre a Rvops e outros sistemas.\n\n[Clique aqui](https://help.eloz.io/central-de-ajuda-eloz-crm/crm/empresas) para conhecer mais sobre o Objeto Empresas."
+    },
+    {
+      "name": "Pipelines",
+      "item": [
+        {
+          "name": "create",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                },
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"name\": \"Comercial\",\n\t\"stages\": [\n\t\t{\n\t\t\t\"name\": \"Estacionamento\",\n\t\t\t\"probability\": \"20\"\n\t\t},\n\t\t{\n\t\t\t\"name\": \"Finalizado\",\n\t\t\t\"probability\": \"100\"\n\t\t},\n\t\t{\n\t\t\t\"name\": \"Descontinuado\",\n\t\t\t\"probability\": \"0\"\n\t\t}\n\t]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/deals/pipeline",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "deals",
+                "pipeline"
+              ]
+            },
+            "description": "Cria um **pipeline** junto com suas **etapas**.\n\n- Para o **pipeline**, é necessário informar o **nome** (`name`).\n    \n- Para as **etapas**, deve-se fornecer um **array de objetos**, onde cada objeto deve conter:\n    \n    - `name` (nome da etapa)\n        \n    - `probability` (probabilidade da etapa)\n        \n\n**Restrições:**\n\n- O nome da pipeline e das etapas **não pode conter** os seguintes caracteres: `' \" { } / \\`.\n    \n- A **probabilidade das etapas** deve ser sempre um múltiplo de **10**, variando de **0 a 100**.\n    \n- **Não são aceitos** valores fracionados, negativos ou acima de **100**."
+          },
+          "response": []
+        },
+        {
+          "name": "list",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                },
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/deals/pipelines",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "deals",
+                "pipelines"
+              ]
+            },
+            "description": "Retorno de todas as pipelines de negócios com suas respectivas etapas."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "search",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"filters\": [\n        {\n          \"value\": \"Produto 1\",\n          \"propertyName\": \"name\",\n          \"operator\": \"EQ\"\n        }\n      ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/products/search",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "search"
+              ]
+            },
+            "description": "Pesquise por produtos com base nos valores das propriedades.\n\nPor não ser possível criar novas propriedades para produtos, as opções de filtro são limitadas às seguintes:\n\n| **Value** | **Descrição** |\n| --- | --- |\n| **id** | ID do produto |\n| **name** | Nome do produto |\n| **price** | Preço do produto |\n| **sku** | Código SKU do produto |\n| **frequency** | Frequência de cobrança do produto |\n| **unit_cost** | Custo unitário do produto |\n| **url** | URL do produto |\n| **months_term** | Prazo em meses para a renovação do produto |\n| **description** | Descrição do produto |\n| **updatedAt** | Data e hora da última atualização do produto |\n\n**Filters:**  \nFiltros que você deseja aplicar na sua busca devem ser passados como um array de objetos, podendo conter uma ou mais opções. Cada novo objeto no array será tratado como uma condição **E**. O campo `Filters` é obrigatório. Exemplo:\n\n``` json\njsonCopy code{\n  \"filters\": [\n    {\n      \"value\": \"Produto 1\",\n      \"propertyName\": \"name\",\n      \"operator\": \"EQ\"\n    },\n    {\n      \"values\": [\"20\", \"50\"],\n      \"propertyName\": \"unit_cost\",\n      \"operator\": \"IN\"\n    }\n  ]\n}\n\n ```\n\nIsso significa que a busca retornará os produtos em que o nome seja igual a Produto 1 **e** o custo unitário seja igual a 20 ou 50.\n\n**Operator:**\n\nNa Rvops, você tem várias opções de filtros para buscas. Confira os operadores disponíveis e suas descrições na tabela abaixo:\n\n| Operador | Descrição |\n| --- | --- |\n| `EQ` | Igual a |\n| `NEQ` | Diferente de |\n| `GT` | Maior que |\n| `LT` | Menor que |\n| `GTE` | Maior ou igual a |\n| `LTE` | Menor ou igual a |\n| `IN` | Contido em uma lista |\n| `NOT_IN` | Não contido em uma lista |\n| `HAS_PROPERTY` | Propriedade existe |\n| `NOT_HAS_PROPERTY` | Propriedade não existe |\n| `CONTAINS_TOKEN` | Contém a palavra específica |\n| `NOT_CONTAINS_TOKEN` | Não contém a palavra específica |\n\n**Importante:**\n\n- Para os operadores `IN` e `NOT_IN`, os valores devem ser passados em formato de array. Exemplo: `values: [\"valor1\", \"valor2\", \"valor3\"]`.\n    \n- Para os demais operadores, os valores devem ser passados como string. Exemplo: `value: \"valor\"`.\n    \n\n**Parâmetros opcionais:**\n\n- **sort**: Campo utilizado para ordenar os itens. Os campos disponíveis são: `date_modified`, `date_added`, `createdAt` e `updatedAt`. O padrão é `date_modified`.\n    \n- **order**: Direção da ordenação, podendo ser **decrescente** (`desc`) ou **ascendente** (`asc`). O padrão é **decrescente** (`desc`)."
+          },
+          "response": []
+        },
+        {
+          "name": "read",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/products/[id]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "[id]"
+              ]
+            },
+            "description": "Retorna o produto informado junto com todas as propriedades. Para isso, é obrigatório fornecer o ID do produto."
+          },
+          "response": []
+        },
+        {
+          "name": "create",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"properties\": {\n        \"name\": \"Novo Produto\",\n        \"price\": 99.90,\n        \"sku\": \"1234\"\n\t}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/products",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ]
+            },
+            "description": "Crie um produto com as propriedades fornecidas e retorne uma cópia do objeto, incluindo o ID.\n\nPor não ser possível criar novas propriedades para produtos, elas são limitadas às seguintes:\n\n| **Value** | **Descrição** |\n| --- | --- |\n| **id** | ID do produto |\n| **name** | Nome do produto |\n| **price** | Preço do produto |\n| **sku** | Código SKU do produto |\n| **frequency** | Frequência de cobrança do produto |\n| **unit_cost** | Custo unitário do produto |\n| **url** | URL do produto |\n| **months_term** | Prazo em meses para a renovação do produto |\n| **description** | Descrição do produto |\n| **updatedAt** | Data e hora da última atualização do produto |"
+          },
+          "response": []
+        },
+        {
+          "name": "delete",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/products/[id]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "[id]"
+              ]
+            },
+            "description": "Deleta o produto a partir de seu ID. Isso também apagará todas as suas associações com outros objetos (mas os objetos em si não serão excluídos).\n\nUm produto apagado não pode ser recuperado."
+          },
+          "response": []
+        },
+        {
+          "name": "update",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"properties\": {\n        \"name\": \"Produto atualizado\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/products/[productd]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "[productd]"
+              ]
+            },
+            "description": "Atualiza o produto com base no ID fornecido. Os valores das propriedades serão sobrescritos com os novos valores fornecidos. Para apagar o valor de uma propriedade, basta informá-la como `null`. Propriedades somente leitura e inexistentes serão ignoradas, e não é possível associar objetos durante a atualização.\n\n**Importante:**\n\n- Propriedades do tipo MultiSelect devem ser informadas em forma de array, contendo os valores internos das opções escolhidas. Exemplo: `[\"valor1\", \"valor2\"]`.\n    \n- Propriedades do tipo Date e DateTime devem ser passadas no formato `YYYY-MM-DD HH:mm`.\n    \n- Os demais tipos de propriedades podem ser passadas como string."
+          },
+          "response": []
+        },
+        {
+          "name": "list",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/products?limit=2&cursor=MTY4ODk5OTgwOTAwMHw5",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "2"
+                },
+                {
+                  "key": "cursor",
+                  "value": "MTY4ODk5OTgwOTAwMHw5"
+                }
+              ]
+            },
+            "description": "Lista todos os produtos, limitando a 100 produtos por chamada. Existem alguns parâmetros opcionais que podem ser utilizados:\n\n- **Limit**: Limita a quantidade de produtos listados, com um mínimo de 1 e máximo de 100.\n    \n- **Cursor**: Cursor da próxima página da requisição, retornado sempre que houver mais produtos além dos exibidos até o momento.\n    \n- **sort**: Campo utilizado para ordenar os itens. Os campos disponíveis são: `date_modified`, `date_added`, `createdAt` e `updatedAt`. O padrão é `date_modified`.\n    \n- **order**: Direção da ordenação, podendo ser **decrescente** (`desc`) ou **ascendente** (`asc`). O padrão é **decrescente** (`desc`)."
+          },
+          "response": []
+        }
+      ],
+      "description": "Na Rvops, produtos representam os bens ou serviços que você vende. Construir uma biblioteca de produtos permite adicionar rapidamente produtos a negócios. Os endpoints de produtos permitem que você gerencie esses dados e os sincronize entre a Rvops e outros sistemas.\n\nExemplo de caso de uso: para que os representantes de vendas possam adicionar facilmente bens e serviços a negócios, cotações e mais, use a API de produtos para importar seu catálogo de produtos na Rvops.\n\n[Clique aqui](https://help.eloz.io/central-de-ajuda-eloz-crm/crm/produtos) para conhecer mais sobre Produtos."
+    },
+    {
+      "name": "Notes",
+      "item": [
+        {
+          "name": "list",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/notes/[fromObject]/[fromObjectId]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "notes",
+                "[fromObject]",
+                "[fromObjectId]"
+              ]
+            },
+            "description": "Lista as anotações do objeto informado, juntamente com o ID. Os objetos disponíveis são:\n\n- deal\n    \n- contact"
+          },
+          "response": [
+            {
+              "name": "read",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{domain}}/api/v1/notes/[fromObject]/[fromObjectId]",
+                  "host": [
+                    "{{domain}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "notes",
+                    "[fromObject]",
+                    "[fromObjectId]"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+                },
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Origin, X-Requested-With, Content-Type, Accept"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "110"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"6e-nfvIYn92XrMvwXJzmTrHIBxz1N0\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Fri, 01 Sep 2023 12:59:26 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "[\n    {\n        \"id\": 6,\n        \"timestamp\": \"2023-09-01T12:52:53.000Z\",\n        \"object\": \"leads\",\n        \"object_id\": 9,\n        \"owner\": 1,\n        \"body\": \"My Example\"\n    }\n]"
+            }
+          ]
+        },
+        {
+          "name": "create",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"properties\": {\n        \"text\": \"Uma anotação de exemplo\",\n        \"type\": \"general\",\n\t\t\"files\": [\n\t\t\t{\n\t\t\t\t\"link\": \"https://link-arquivo.com/1\",\n\t\t\t\t\"name\": \"nome arquivo\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"link\": \"https://link-arquivo.com/2\"\n\t\t\t}\n\t\t]\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/notes/[fromObject]/[fromObjectId]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "notes",
+                "[fromObject]",
+                "[fromObjectId]"
+              ]
+            },
+            "description": "Cria uma anotação para o objeto com o ID fornecido e retorna uma cópia do objeto, incluindo o ID da anotação. Os objetos disponíveis são:\n\n- deal\n    \n- contact\n    \n\nE as opções para o campo `type` são:\n\n- general\n    \n- email\n    \n- call\n    \n- meeting\n    \n- whatsapp\n    \n\nOpcionalmente, também é possível fornecer um array de objetos contendo um link e, opcionalmente, um nome de arquivo."
+          },
+          "response": []
+        },
+        {
+          "name": "delete",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/notes/[noteId]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "notes",
+                "[noteId]"
+              ]
+            },
+            "description": "Ao deletar uma anotação, o registro correspondente será removido da timeline do contato ou negócio.\n\nAnotações deletadas não podem ser recuperadas."
+          },
+          "response": []
+        }
+      ],
+      "description": "Você pode registrar notas em registros da Rvops para adicionar informações à linha do tempo do registro. Por exemplo, se você precisar acompanhar uma conversa offline que teve com um contato, pode adicionar uma nota ao registro de contato com os detalhes relacionados à conversa. Outros usuários na conta poderão então visualizar e referenciar essa nota."
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "search",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"filters\": [\n        {\n            \"value\": \"Tarefa 1\",\n            \"propertyName\": \"name\",\n            \"operator\": \"EQ\"\n        },\n        {\n            \"values\": [\n                \"2\",\n                \"0\"\n            ],\n            \"propertyName\": \"priority\",\n            \"operator\": \"IN\"\n        }\n    ]\n}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/tasks/search",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tasks",
+                "search"
+              ]
+            },
+            "description": "Pesquise por tarefas com base nos valores das propriedades.\n\nPor não ser possível criar novas propriedades para tarefas, as opções de filtro são limitadas às seguintes:\n\n| **Value** | **Descrição** |\n| --- | --- |\n| **id** | ID da tarefa |\n| **name** | Nome/título da tarefa |\n| **due_date** | Data e hora do vencimento da tarefa |\n| **owner_id** | ID do proprietário da tarefa |\n| **task_type** | Tipo da tarefa (todo, call, email ou whatsapp) |\n| **source** | Origem da tarefa |\n| **description** | Descrição da tarefa |\n| **priority** | Prioridade da tarefa (valores aceitos: 0, 1 ou 2, onde 0 = baixa, 1 = média e 2 = alta). |\n\n**Filters:**  \nFiltros que você deseja aplicar na sua busca devem ser passados como um array de objetos, podendo conter uma ou mais opções. Cada novo objeto no array será tratado como uma condição **E**. O campo `Filters` é obrigatório. Exemplo:\n\n``` json\njsonCopy code{\n  \"filters\": [\n    {\n      \"value\": \"Tarefa 1\",\n      \"propertyName\": \"name\",\n      \"operator\": \"EQ\"\n    },\n    {\n      \"values\": [\"2\", \"0\"],\n      \"propertyName\": \"priority\",\n      \"operator\": \"IN\"\n    }\n  ]\n}\n\n ```\n\nIsso significa que a busca retornará as tarefas em que o nome seja igual a Tarefa 1 **e** a prioridade seja igual a 2 (alta) ou 0 (baixa).\n\n**Operator:**\n\nNa Rvops, você tem várias opções de filtros para buscas. Confira os operadores disponíveis e suas descrições na tabela abaixo:\n\n| Operador | Descrição |\n| --- | --- |\n| `EQ` | Igual a |\n| `NEQ` | Diferente de |\n| `GT` | Maior que |\n| `LT` | Menor que |\n| `GTE` | Maior ou igual a |\n| `LTE` | Menor ou igual a |\n| `IN` | Contido em uma lista |\n| `NOT_IN` | Não contido em uma lista |\n| `HAS_PROPERTY` | Propriedade existe |\n| `NOT_HAS_PROPERTY` | Propriedade não existe |\n| `CONTAINS_TOKEN` | Contém a palavra específica |\n| `NOT_CONTAINS_TOKEN` | Não contém a palavra específica |\n\n**Importante:**\n\n- Para os operadores `IN` e `NOT_IN`, os valores devem ser passados em formato de array. Exemplo: `values: [\"valor1\", \"valor2\", \"valor3\"]`.\n    \n- Para os demais operadores, os valores devem ser passados como string. Exemplo: `value: \"valor\"`.\n    \n\n**Parâmetros opcionais:**\n\n- **sort**: Campo utilizado para ordenar os itens. Os campos disponíveis são: `date_modified`, `date_added`, `createdAt` e `updatedAt`. O padrão é `date_modified`.\n    \n- **order**: Direção da ordenação, podendo ser **decrescente** (`desc`) ou **ascendente** (`asc`). O padrão é **decrescente** (`desc`)."
+          },
+          "response": []
+        },
+        {
+          "name": "read",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/tasks/[id]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tasks",
+                "[id]"
+              ]
+            },
+            "description": "Lista as propriedades da tarefa associada ao ID fornecido."
+          },
+          "response": []
+        },
+        {
+          "name": "create",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"properties\": {\n\t\t\"name\": \"Nova tarefa\",\n\t\t\"owner\": 2,\n\t\t\"description\": \"Apenas um lembrete\",\n\t\t\"due_date\": \"2024-06-25\",\n        \"due_time\": \"12:00\",\n\t\t\"task_type\": \"todo\",\n\t\t\"priority\": \"0\",\n\t\t\"source\": \"Meu usuário\"\n\t}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/tasks",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tasks"
+              ]
+            },
+            "description": "Cria uma tarefa com as propriedades e associações fornecidas e retorna uma cópia do objeto, incluindo o ID. Não é obrigatório, mas você pode associar a tarefa aos seguintes objetos:\n\n- deals\n    \n- contacts\n    \n\nAmbos os objetos são passados em um array (dentro do campo \"properties\") contendo os IDs que deseja associar à tarefa, por exemplo:  \n`deals[]: [\"5\", \"12\"]`\n\n`contacts[]: [\"12345\"]`"
+          },
+          "response": []
+        },
+        {
+          "name": "delete",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/tasks/[id]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tasks",
+                "[id]"
+              ]
+            },
+            "description": "Deleta a tarefa a partir de seu ID. Isso também apagará todas as suas associações com outros objetos (mas os objetos em si não serão excluídos).\n\nUma tarefa apagada não pode ser recuperada."
+          },
+          "response": []
+        },
+        {
+          "name": "update",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"properties\": {\n        \"name\": \"Tarefa Atualizada\",\n        \"owner\": \"2\",\n        \"description\": \"Mudando descrição\",\n        \"due_date\": \"2024-06-25 15:00\",\n        \"task_type\": \"todo\",\n        \"priority\": \"0\",\n        \"source\": \"Meu usuário\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/tasks/[taskId]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tasks",
+                "[taskId]"
+              ]
+            },
+            "description": "Atualiza a tarefa com base no ID fornecido. Os valores das propriedades serão sobrescritos com os novos valores fornecidos. Para apagar o valor de uma propriedade, basta informá-la como `null`. Propriedades somente leitura e inexistentes serão ignoradas, e não é possível associar objetos durante a atualização.\n\n**Importante:**\n\n- Propriedades do tipo Date e DateTime devem ser passadas no formato `YYYY-MM-DD HH:mm`.\n    \n- Os demais tipos de propriedades podem ser passadas como string."
+          },
+          "response": []
+        },
+        {
+          "name": "list",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/tasks?limit=2&cursor=MTY4ODk5OTgwOTAwMHw5",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tasks"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "2"
+                },
+                {
+                  "key": "cursor",
+                  "value": "MTY4ODk5OTgwOTAwMHw5"
+                }
+              ]
+            },
+            "description": "Lista todas as tarefas, limitando a 100 tarefas por chamada. Existem alguns parâmetros opcionais que podem ser utilizados:\n\n- **Limit**: Limita a quantidade de tarefas listadas, com um mínimo de 1 e máximo de 100.\n    \n- **Cursor**: Cursor da próxima página da requisição, retornado sempre que houver mais tarefas além dos exibidos até o momento.\n    \n- **sort**: Campo utilizado para ordenar os itens. Os campos disponíveis são: `date_modified`, `date_added`, `createdAt` e `updatedAt`. O padrão é `date_modified`.\n    \n- **order**: Direção da ordenação, podendo ser **decrescente** (`desc`) ou **ascendente** (`asc`). O padrão é **decrescente** (`desc`)."
+          },
+          "response": []
+        }
+      ],
+      "description": "Use a API de tarefas para criar e gerenciar tarefas. Você pode criar tarefas na Rvops ou através da API de tarefas.\n\n[Clique aqui](https://help.eloz.io/central-de-ajuda-eloz-crm/crm/tarefas) para conhecer mais sobre Tarefa."
+    },
+    {
+      "name": "Associations",
+      "item": [
+        {
+          "name": "create",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/associations/[fromObject]/[fromObjectId]/[toObject]/[toObjectId]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "associations",
+                "[fromObject]",
+                "[fromObjectId]",
+                "[toObject]",
+                "[toObjectId]"
+              ]
+            },
+            "description": "Cria uma associação entre objetos, sendo necessário informar o tipo do objeto e o ID. Os tipos de objetos disponíveis são:\n\n- deal\n    \n- contact\n    \n- company\n    \n- product (funcionando apenas de deal -> product)\n    \n    - Necessário utilizar body request para associar produto à um negócio. Exemplo abaixo:\n        \n        - \"data\": {\"quantity\": 1,\"linePrice\" : \"10.99\",\"forceUpdateAmount\": true // quantity \\* linePrice = valor total do negócio}\n            \n\n**Importante:**  \nNão é possível criar associações entre objetos do mesmo tipo!"
+          },
+          "response": []
+        },
+        {
+          "name": "delete",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/associations/[fromObject]/[fromObjectId]/[toObject]/[toObjectId]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "associations",
+                "[fromObject]",
+                "[fromObjectId]",
+                "[toObject]",
+                "[toObjectId]"
+              ]
+            },
+            "description": "Remove as associações entre os objetos com os IDs fornecidos. As associações removidas não podem ser recuperadas, sendo necessário criar uma nova, se desejado. Os tipos de objetos disponíveis são:\n\n- deal\n    \n- contact\n    \n- company"
+          },
+          "response": []
+        }
+      ],
+      "description": "As associações representam os relacionamentos entre objetos da Rvops. As associações de registros podem existir entre registros de diferentes objetos (por exemplo, Contato para Empresa). Você pode usar os endpoints de associações para criar ou excluir associações entre registros."
+    },
+    {
+      "name": "Properties",
+      "item": [
+        {
+          "name": "create",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"properties\": {\n\t\t\"name\": \"Idade\",\n\t\t\"group\": \"core\",\n\t\t\"object\": \"contact\",\n\t\t\"type\": \"number\",\n\t\t\"isRequired\": true,\n\t\t\"isUniqueIdentifier\": false\n\t}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/properties",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "properties"
+              ]
+            },
+            "description": "Cria uma nova propriedade do tipo especificado no objeto informado. Os objetos disponíveis são:\n\n- contact\n    \n- company\n    \n- deal\n    \n\nE os tipos disponíveis são:\n\n- date\n    \n- datetime\n    \n- select\n    \n- multiselect\n    \n- text\n    \n- textarea\n    \n- time\n    \n- number\n    \n- user\n    \n- currency\n    \n\n**Properties:**  \nObrigatório apenas para os tipos **select** e **multiselect**. Recebe uma lista com o **label** e **value** das opções que deseja criar. O **label** é o nome de exibição para os usuários e o **value** é o valor interno.\n\n**isFormVisible:**  \nValor booleano (`false` ou `true`), opcional; quando definido como `true`, o campo é exibido no formulário do objeto, exceto para negociações.\n\nExemplo:\n\n``` json\njsonCopy code{\n    \"properties\": {\n        \"name\": \"Prop Multiselect\",\n        \"group\": \"core\",\n        \"object\": \"contact\",\n        \"type\": \"multiselect\",\n        \"properties\": {\n            \"list\": [\n                {\n                    \"label\": \"Valor 1\",\n                    \"value\": \"valor1\"\n                },\n                {\n                    \"label\": \"Valor 2\",\n                    \"value\": \"valor2\"\n                }\n            ]\n        },\n        \"isRequired\": false,\n        \"isUniqueIdentifier\": false,\n        \"isFormVisible\": false\n    }\n}\n\n ```"
+          },
+          "response": []
+        },
+        {
+          "name": "list",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/properties/[object]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "properties",
+                "[object]"
+              ]
+            },
+            "description": "Liste todas as propriedades existentes para o tipo de objeto especificado. Os objetos disponíveis são:\n\n- deal\n    \n- contact\n    \n- company"
+          },
+          "response": []
+        }
+      ],
+      "description": "Use propriedades para armazenar informações em registros na Rvops. A Rvops fornece um conjunto de propriedades padrão para cada objeto, e você também pode criar e gerenciar suas próprias propriedades personalizadas, seja na Rvops ou usando a API de propriedades.\n\nAo criar propriedades, é importante considerar como arquitetar seus dados.\n\n[Clique aqui](https://help.eloz.io/central-de-ajuda-eloz-crm/conta-e-configuracao/propriedades) para conhecer mais sobre as Propriedades."
+    },
+    {
+      "name": "Segments",
+      "item": [
+        {
+          "name": "list",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/segments?limit=2&cursor=MTY4Nzg2ODQwMDAwMHw5ODI=&sort=date_added&order=desc",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "segments"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "2"
+                },
+                {
+                  "key": "cursor",
+                  "value": "MTY4Nzg2ODQwMDAwMHw5ODI="
+                },
+                {
+                  "key": "sort",
+                  "value": "date_added",
+                  "description": "Campo utilizado para ordenar. Por padrão usamos date_added.",
+                  "type": "text"
+                },
+                {
+                  "key": "order",
+                  "value": "desc",
+                  "description": "Tipo de ordenação, pode ser desc ou asc. Por padrão usamos desc.",
+                  "type": "text"
+                }
+              ]
+            },
+            "description": "Lista todos os segmentos, limitando a 100 segmentos por chamada. Existem alguns parâmetros opcionais que podem ser utilizados:\n\n- **Limit**: Limita a quantidade de segmentos listados, com um mínimo de 1 e máximo de 100.\n    \n- **Cursor**: Cursor da próxima página da requisição, retornado sempre que houver mais segmentos além dos exibidos até o momento.\n    \n- **Sort**: Campo utilizado para ordenar os resultados. As opções são `date_added` ou `date_modified`. O valor padrão é `date_added`.\n    \n- **Order**: Define a ordem da listagem. Pode ser `desc` (decrescente) ou `asc` (crescente). O valor padrão é `desc`."
+          },
+          "response": []
+        },
+        {
+          "name": "create",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"properties\": {\n\t\t\"name\": \"Segmento 1\",\n\t\t\"description\": \"Segmento criado por API\"\n\t},\n\t\t\"contacts\": [1, 2, 5, 10]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/segments",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "segments"
+              ]
+            },
+            "description": "Cria um novo segmento com as propriedades fornecidas e retorna uma cópia do objeto contendo todas as propriedades, além do ID gerado. É obrigatório informar as propriedades marcadas como obrigatórias.\n\nOpcionalmente, você pode incluir contatos no segmento, mas isso não é necessário."
+          },
+          "response": []
+        },
+        {
+          "name": "add a contact",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/segments/[segmentId]/add/[contactId]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "segments",
+                "[segmentId]",
+                "add",
+                "[contactId]"
+              ]
+            },
+            "description": "Adiciona um único contato a um segmento existente. Para isso, é necessário fornecer o ID do segmento e o ID do contato que deseja adicionar."
+          },
+          "response": []
+        },
+        {
+          "name": "add contacts",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"contacts\": [1, 2, 5, 10]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/segments/[segmentId]/add",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "segments",
+                "[segmentId]",
+                "add"
+              ]
+            },
+            "description": "Adiciona vários contatos a um segmento existente. Para isso, é necessário fornecer o ID do segmento e um array com os IDs dos contatos que deseja adicionar no corpo da requisição."
+          },
+          "response": []
+        }
+      ],
+      "description": "Segmentos referem-se à prática de dividir sua base de clientes ou leads em grupos menores e mais específicos, com base em características comuns. Esses segmentos ajudam as empresas a personalizar suas estratégias de marketing, vendas, ou ações específicas.\n\nAtualmente, a criação de segmentos via API está limitada a segmentos do tipo estático e sem filtros. Isso significa que o segmento só conterá os contatos que forem adicionados manualmente, seja pela Rvops ou via API.\n\n[Clique aqui](https://help.eloz.io/central-de-ajuda-eloz-crm/crm/contatos/como-criar-um-segmento) para conhecer mais sobre os Segmentos."
+    },
+    {
+      "name": "Automation Flows",
+      "item": [
+        {
+          "name": "add contacts",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"leads\": [\"1\"],\n    \"campaign\": \"1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{domain}}/api/v1/contacts/add-to-campaign",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "contacts",
+                "add-to-campaign"
+              ]
+            },
+            "description": "Adiciona um ou mais contatos a um Fluxo de Automação, desde que o fluxo esteja ativo.\n\nOs campos esperados no corpo da requisição são:\n\n- **leads**: Array contendo os IDs dos contatos a serem inscritos.\n    \n- **campaign**: ID do fluxo de automação no qual os contatos serão inscritos."
+          },
+          "response": []
+        }
+      ],
+      "description": "Fluxos de automação, são conjuntos de instruções que automatizam processos repetitivos ou sistemáticos em uma organização, eliminando a necessidade de intervenção manual em várias etapas. Ajudando a facilitar tarefas, e otimizando o tempo.\n\n[Clique aqui](https://help.eloz.io/central-de-ajuda-rvops-crm/fluxos-de-automacao/fluxos-de-automacao) para conhecer mais sobre os Fluxos de Automação."
+    },
+    {
+      "name": "Forms",
+      "item": [
+        {
+          "name": "list",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/forms?limit=2&cursor=MTY4Nzg2ODQwMDAwMHw5ODI=",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "forms"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "2"
+                },
+                {
+                  "key": "cursor",
+                  "value": "MTY4Nzg2ODQwMDAwMHw5ODI="
+                }
+              ]
+            },
+            "description": "Lista todos os formulários, incluindo seus campos. Para campos do tipo Select, Multiselect, Radio ou Checkbox, as opções também são listadas. Campos do tipo Quebra de Página incluem os nomes dos botões \"Avançar\" e \"Voltar\". O limite é de 100 formulários por chamada.\n\nParâmetros opcionais disponíveis:\n\n- **Limit**: Limita a quantidade de formulários listados, com um mínimo de 1 e máximo de 100.\n    \n- **Cursor**: Cursor da próxima página da requisição, retornado sempre que houver mais segmentos além dos exibidos até o momento."
+          },
+          "response": []
+        },
+        {
+          "name": "read",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "{{eloz-api-name}}",
+                  "type": "string"
+                },
+                {
+                  "key": "value",
+                  "value": "{{eloz-apikey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{domain}}/api/v1/forms/[formId]",
+              "host": [
+                "{{domain}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "forms",
+                "[formId]"
+              ]
+            },
+            "description": "Retorna o formulário informado junto com todos os campos. Para campos do tipo Select, Multiselect, Radio ou Checkbox, as opções também são listadas. Campos do tipo Quebra de Página incluem os nomes dos botões \"Avançar\" e \"Voltar\". Para isso, é obrigatório fornecer o ID do formulário."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Communications (BETA)",
+      "item": [
+        {
+          "name": "Envio de Template de Whatsapp",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "value",
+                  "value": "{{eloz-apiKey}}",
+                  "type": "string"
+                },
+                {
+                  "key": "key",
+                  "value": "authorization",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"variables\": [\"Felipe\"],\n\t\"number_to\": \"5519989405029\",\n\t\"number_from\": \"5511961599895\",\n\t\"insert_event\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://server.spread.chat/api/template/send/[idTemplateRvops]",
+              "protocol": "https",
+              "host": [
+                "server",
+                "spread",
+                "chat"
+              ],
+              "path": [
+                "api",
+                "template",
+                "send",
+                "[idTemplateRvops]"
+              ]
+            },
+            "description": "Permite o envio direto do template para o contato utilizando o número de celular.\n\nAtualmente, a chave de acesso está sendo gerada internamente, sendo necessário solicitá-la.\n\n**Parâmetros do corpo:**\n\n- **variables**: valores a serem substituídos no conteúdo do template. É necessário passar um array de strings, onde cada posição será substituída conforme a ordem do array.\n    \n- **number_to**: número de WhatsApp do contato, passado como string.\n    \n- **number_from**: número de WhatsApp da conta de disparo (a mesma conectada na Rvops), também passado como string.\n    \n- **insert_event** (opcional): define se o evento de disparo será registrado na timeline, do tipo boolean.\n    \n- **ctaVariable** (opcional): valor da variável do botão CTA (do tipo URL), passado como string."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "eloz-api-name",
+      "value": "ELOZ-APIKEY"
+    },
+    {
+      "key": "eloz-apiKey",
+      "value": "",
+      "type": "default"
+    }
+  ]
+}
