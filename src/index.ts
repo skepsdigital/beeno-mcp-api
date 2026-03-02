@@ -19,6 +19,7 @@ import { registerCommunicationTools } from './tools/communications.js';
 
 const domain = process.env.BEENO_DOMAIN;
 const apiKey = process.env.BEENO_API_KEY;
+const readonly = process.env.BEENO_READONLY !== 'false';
 
 if (!domain || !apiKey) {
   console.error('Error: BEENO_DOMAIN and BEENO_API_KEY environment variables are required');
@@ -33,23 +34,26 @@ const client = new BeenoApiClient({
 });
 
 const server = new McpServer({
-  name: 'beeno-crm',
+  name: readonly ? 'beeno-crm-readonly' : 'beeno-crm',
   version: '1.0.0'
 });
 
-registerContactTools(server, client);
-registerDealTools(server, client);
-registerCompanyTools(server, client);
-registerPipelineTools(server, client);
-registerProductTools(server, client);
-registerNoteTools(server, client);
-registerTaskTools(server, client);
-registerAssociationTools(server, client);
-registerPropertyTools(server, client);
-registerSegmentTools(server, client);
-registerAutomationTools(server, client);
+registerContactTools(server, client, readonly);
+registerDealTools(server, client, readonly);
+registerCompanyTools(server, client, readonly);
+registerPipelineTools(server, client, readonly);
+registerProductTools(server, client, readonly);
+registerNoteTools(server, client, readonly);
+registerTaskTools(server, client, readonly);
+registerPropertyTools(server, client, readonly);
+registerSegmentTools(server, client, readonly);
 registerFormTools(server, client);
-registerCommunicationTools(server, client);
+
+if (!readonly) {
+  registerAssociationTools(server, client);
+  registerAutomationTools(server, client);
+  registerCommunicationTools(server, client);
+}
 
 const transport = new StdioServerTransport();
 await server.connect(transport);

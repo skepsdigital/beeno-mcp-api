@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { BeenoApiClient } from '../client.js';
 import { filterSchema, fetchAllSchema, paginationSchema, sortSchema } from '../schemas.js';
 
-export function registerContactTools(server: McpServer, client: BeenoApiClient): void {
+export function registerContactTools(server: McpServer, client: BeenoApiClient, readonly: boolean = false): void {
 
   // 1. List contacts
   server.tool(
@@ -54,64 +54,66 @@ export function registerContactTools(server: McpServer, client: BeenoApiClient):
     }
   );
 
-  // 3. Create a contact
-  server.tool(
-    'beeno_contacts_create',
-    'Create a new contact in Beeno CRM. Property value formats: MultiSelect fields expect an array, Date/DateTime fields expect "YYYY-MM-DD HH:mm" format, all other fields expect a string value.',
-    {
-      properties: z.record(z.any()).describe('Contact properties as key-value pairs'),
-      associations: z.object({
-        deals: z.array(z.number()).optional().describe('Array of deal IDs to associate'),
-        companies: z.array(z.number()).optional().describe('Array of company IDs to associate')
-      }).optional().describe('Optional associations to link to the new contact')
-    },
-    async (params) => {
-      try {
-        const body: Record<string, any> = { properties: params.properties };
-        if (params.associations !== undefined) body.associations = params.associations;
+  if (!readonly) {
+    // 3. Create a contact
+    server.tool(
+      'beeno_contacts_create',
+      'Create a new contact in Beeno CRM. Property value formats: MultiSelect fields expect an array, Date/DateTime fields expect "YYYY-MM-DD HH:mm" format, all other fields expect a string value.',
+      {
+        properties: z.record(z.any()).describe('Contact properties as key-value pairs'),
+        associations: z.object({
+          deals: z.array(z.number()).optional().describe('Array of deal IDs to associate'),
+          companies: z.array(z.number()).optional().describe('Array of company IDs to associate')
+        }).optional().describe('Optional associations to link to the new contact')
+      },
+      async (params) => {
+        try {
+          const body: Record<string, any> = { properties: params.properties };
+          if (params.associations !== undefined) body.associations = params.associations;
 
-        const result = await client.post('/contacts', body);
-        return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
-      } catch (error: any) {
-        return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+          const result = await client.post('/contacts', body);
+          return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+        } catch (error: any) {
+          return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+        }
       }
-    }
-  );
+    );
 
-  // 4. Update a contact
-  server.tool(
-    'beeno_contacts_update',
-    'Update an existing contact in Beeno CRM. Only provided properties will be updated. Set a property value to null to clear it.',
-    {
-      contactId: z.string().describe('The ID of the contact to update'),
-      properties: z.record(z.any()).describe('Contact properties to update as key-value pairs')
-    },
-    async (params) => {
-      try {
-        const result = await client.patch(`/contacts/${params.contactId}`, { properties: params.properties });
-        return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
-      } catch (error: any) {
-        return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+    // 4. Update a contact
+    server.tool(
+      'beeno_contacts_update',
+      'Update an existing contact in Beeno CRM. Only provided properties will be updated. Set a property value to null to clear it.',
+      {
+        contactId: z.string().describe('The ID of the contact to update'),
+        properties: z.record(z.any()).describe('Contact properties to update as key-value pairs')
+      },
+      async (params) => {
+        try {
+          const result = await client.patch(`/contacts/${params.contactId}`, { properties: params.properties });
+          return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+        } catch (error: any) {
+          return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+        }
       }
-    }
-  );
+    );
 
-  // 5. Delete a contact
-  server.tool(
-    'beeno_contacts_delete',
-    'Permanently delete a contact from Beeno CRM. This action cannot be undone.',
-    {
-      contactId: z.string().describe('The ID of the contact to delete')
-    },
-    async (params) => {
-      try {
-        const result = await client.delete(`/contacts/${params.contactId}`);
-        return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
-      } catch (error: any) {
-        return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+    // 5. Delete a contact
+    server.tool(
+      'beeno_contacts_delete',
+      'Permanently delete a contact from Beeno CRM. This action cannot be undone.',
+      {
+        contactId: z.string().describe('The ID of the contact to delete')
+      },
+      async (params) => {
+        try {
+          const result = await client.delete(`/contacts/${params.contactId}`);
+          return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+        } catch (error: any) {
+          return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+        }
       }
-    }
-  );
+    );
+  }
 
   // 6. Search contacts
   server.tool(

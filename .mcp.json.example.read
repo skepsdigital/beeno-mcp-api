@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "beeno-mcp": {
+      "command": "node",
+      "args": ["C:/Users/lukas/source/repos/beeno-mcp/dist/index.js"],
+      "env": {
+        "BEENO_DOMAIN": "https://app.beeno.ai/your-tenant-id",
+        "BEENO_API_KEY": "your-beeno-api-key-here"
+      }
+    }
+  }
+}

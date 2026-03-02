@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { BeenoApiClient } from '../client.js';
 import { filterSchema, fetchAllSchema, paginationSchema, sortSchema } from '../schemas.js';
 
-export function registerProductTools(server: McpServer, client: BeenoApiClient): void {
+export function registerProductTools(server: McpServer, client: BeenoApiClient, readonly: boolean = false): void {
 
   // 1. List products
   server.tool(
@@ -46,57 +46,59 @@ export function registerProductTools(server: McpServer, client: BeenoApiClient):
     }
   );
 
-  // 3. Create a product
-  server.tool(
-    'beeno_products_create',
-    'Create a new product in Beeno CRM. Available properties: name, price, sku, frequency, unit_cost, url, months_term, description.',
-    {
-      properties: z.record(z.any()).describe('Product properties as key-value pairs')
-    },
-    async (params) => {
-      try {
-        const result = await client.post('/products', { properties: params.properties });
-        return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
-      } catch (error: any) {
-        return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+  if (!readonly) {
+    // 3. Create a product
+    server.tool(
+      'beeno_products_create',
+      'Create a new product in Beeno CRM. Available properties: name, price, sku, frequency, unit_cost, url, months_term, description.',
+      {
+        properties: z.record(z.any()).describe('Product properties as key-value pairs')
+      },
+      async (params) => {
+        try {
+          const result = await client.post('/products', { properties: params.properties });
+          return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+        } catch (error: any) {
+          return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+        }
       }
-    }
-  );
+    );
 
-  // 4. Update a product
-  server.tool(
-    'beeno_products_update',
-    'Update an existing product in Beeno CRM. Only provided properties will be updated.',
-    {
-      productId: z.string().describe('The ID of the product to update'),
-      properties: z.record(z.any()).describe('Product properties to update as key-value pairs')
-    },
-    async (params) => {
-      try {
-        const result = await client.patch(`/products/${params.productId}`, { properties: params.properties });
-        return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
-      } catch (error: any) {
-        return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+    // 4. Update a product
+    server.tool(
+      'beeno_products_update',
+      'Update an existing product in Beeno CRM. Only provided properties will be updated.',
+      {
+        productId: z.string().describe('The ID of the product to update'),
+        properties: z.record(z.any()).describe('Product properties to update as key-value pairs')
+      },
+      async (params) => {
+        try {
+          const result = await client.patch(`/products/${params.productId}`, { properties: params.properties });
+          return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+        } catch (error: any) {
+          return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+        }
       }
-    }
-  );
+    );
 
-  // 5. Delete a product
-  server.tool(
-    'beeno_products_delete',
-    'Permanently delete a product from Beeno CRM. This action cannot be undone.',
-    {
-      productId: z.string().describe('The ID of the product to delete')
-    },
-    async (params) => {
-      try {
-        const result = await client.delete(`/products/${params.productId}`);
-        return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
-      } catch (error: any) {
-        return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+    // 5. Delete a product
+    server.tool(
+      'beeno_products_delete',
+      'Permanently delete a product from Beeno CRM. This action cannot be undone.',
+      {
+        productId: z.string().describe('The ID of the product to delete')
+      },
+      async (params) => {
+        try {
+          const result = await client.delete(`/products/${params.productId}`);
+          return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+        } catch (error: any) {
+          return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+        }
       }
-    }
-  );
+    );
+  }
 
   // 6. Search products
   server.tool(

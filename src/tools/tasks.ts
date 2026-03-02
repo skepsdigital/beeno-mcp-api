@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { BeenoApiClient } from '../client.js';
 import { filterSchema, fetchAllSchema, paginationSchema, sortSchema } from '../schemas.js';
 
-export function registerTaskTools(server: McpServer, client: BeenoApiClient): void {
+export function registerTaskTools(server: McpServer, client: BeenoApiClient, readonly: boolean = false): void {
 
   // 1. List tasks
   server.tool(
@@ -46,68 +46,70 @@ export function registerTaskTools(server: McpServer, client: BeenoApiClient): vo
     }
   );
 
-  // 3. Create a task
-  server.tool(
-    'beeno_tasks_create',
-    'Create a new task in Beeno CRM with optional associations to deals and contacts.',
-    {
-      properties: z.object({
-        name: z.string().describe('Task name'),
-        owner: z.number().optional().describe('Owner user ID'),
-        description: z.string().optional().describe('Task description'),
-        due_date: z.string().optional().describe('Due date in YYYY-MM-DD format'),
-        due_time: z.string().optional().describe('Due time in HH:mm format'),
-        task_type: z.enum(['todo', 'call', 'email', 'whatsapp']).optional().describe('Type of task'),
-        priority: z.enum(['0', '1', '2']).optional().describe('Priority: 0=low, 1=medium, 2=high'),
-        source: z.string().optional().describe('Source of the task'),
-        deals: z.array(z.string()).optional().describe('Array of deal IDs to associate'),
-        contacts: z.array(z.string()).optional().describe('Array of contact IDs to associate')
-      }).describe('Task properties')
-    },
-    async (params) => {
-      try {
-        const result = await client.post('/tasks', { properties: params.properties });
-        return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
-      } catch (error: any) {
-        return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+  if (!readonly) {
+    // 3. Create a task
+    server.tool(
+      'beeno_tasks_create',
+      'Create a new task in Beeno CRM with optional associations to deals and contacts.',
+      {
+        properties: z.object({
+          name: z.string().describe('Task name'),
+          owner: z.number().optional().describe('Owner user ID'),
+          description: z.string().optional().describe('Task description'),
+          due_date: z.string().optional().describe('Due date in YYYY-MM-DD format'),
+          due_time: z.string().optional().describe('Due time in HH:mm format'),
+          task_type: z.enum(['todo', 'call', 'email', 'whatsapp']).optional().describe('Type of task'),
+          priority: z.enum(['0', '1', '2']).optional().describe('Priority: 0=low, 1=medium, 2=high'),
+          source: z.string().optional().describe('Source of the task'),
+          deals: z.array(z.string()).optional().describe('Array of deal IDs to associate'),
+          contacts: z.array(z.string()).optional().describe('Array of contact IDs to associate')
+        }).describe('Task properties')
+      },
+      async (params) => {
+        try {
+          const result = await client.post('/tasks', { properties: params.properties });
+          return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+        } catch (error: any) {
+          return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+        }
       }
-    }
-  );
+    );
 
-  // 4. Update a task
-  server.tool(
-    'beeno_tasks_update',
-    'Update an existing task in Beeno CRM. Only provided properties will be updated.',
-    {
-      taskId: z.string().describe('The ID of the task to update'),
-      properties: z.record(z.any()).describe('Task properties to update as key-value pairs')
-    },
-    async (params) => {
-      try {
-        const result = await client.patch(`/tasks/${params.taskId}`, { properties: params.properties });
-        return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
-      } catch (error: any) {
-        return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+    // 4. Update a task
+    server.tool(
+      'beeno_tasks_update',
+      'Update an existing task in Beeno CRM. Only provided properties will be updated.',
+      {
+        taskId: z.string().describe('The ID of the task to update'),
+        properties: z.record(z.any()).describe('Task properties to update as key-value pairs')
+      },
+      async (params) => {
+        try {
+          const result = await client.patch(`/tasks/${params.taskId}`, { properties: params.properties });
+          return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+        } catch (error: any) {
+          return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+        }
       }
-    }
-  );
+    );
 
-  // 5. Delete a task
-  server.tool(
-    'beeno_tasks_delete',
-    'Permanently delete a task from Beeno CRM. This action cannot be undone.',
-    {
-      taskId: z.string().describe('The ID of the task to delete')
-    },
-    async (params) => {
-      try {
-        const result = await client.delete(`/tasks/${params.taskId}`);
-        return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
-      } catch (error: any) {
-        return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+    // 5. Delete a task
+    server.tool(
+      'beeno_tasks_delete',
+      'Permanently delete a task from Beeno CRM. This action cannot be undone.',
+      {
+        taskId: z.string().describe('The ID of the task to delete')
+      },
+      async (params) => {
+        try {
+          const result = await client.delete(`/tasks/${params.taskId}`);
+          return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+        } catch (error: any) {
+          return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+        }
       }
-    }
-  );
+    );
+  }
 
   // 6. Search tasks
   server.tool(

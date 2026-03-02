@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { BeenoApiClient } from '../client.js';
 import { filterSchema, fetchAllSchema, paginationSchema, sortSchema } from '../schemas.js';
 
-export function registerCompanyTools(server: McpServer, client: BeenoApiClient): void {
+export function registerCompanyTools(server: McpServer, client: BeenoApiClient, readonly: boolean = false): void {
 
   // 1. List companies
   server.tool(
@@ -50,64 +50,66 @@ export function registerCompanyTools(server: McpServer, client: BeenoApiClient):
     }
   );
 
-  // 3. Create a company
-  server.tool(
-    'beeno_companies_create',
-    'Create a new company with properties and optional associations',
-    {
-      properties: z.record(z.any()).describe('Company properties as key-value pairs (e.g. name, domain, industry)'),
-      associations: z.object({
-        contacts: z.array(z.number()).optional().describe('Array of contact IDs to associate'),
-        deals: z.array(z.number()).optional().describe('Array of deal IDs to associate')
-      }).optional().describe('Optional associations to link on creation')
-    },
-    async (params) => {
-      try {
-        const body: Record<string, any> = { properties: params.properties };
-        if (params.associations) body.associations = params.associations;
+  if (!readonly) {
+    // 3. Create a company
+    server.tool(
+      'beeno_companies_create',
+      'Create a new company with properties and optional associations',
+      {
+        properties: z.record(z.any()).describe('Company properties as key-value pairs (e.g. name, domain, industry)'),
+        associations: z.object({
+          contacts: z.array(z.number()).optional().describe('Array of contact IDs to associate'),
+          deals: z.array(z.number()).optional().describe('Array of deal IDs to associate')
+        }).optional().describe('Optional associations to link on creation')
+      },
+      async (params) => {
+        try {
+          const body: Record<string, any> = { properties: params.properties };
+          if (params.associations) body.associations = params.associations;
 
-        const result = await client.post('/companies', body);
-        return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
-      } catch (error: any) {
-        return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+          const result = await client.post('/companies', body);
+          return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+        } catch (error: any) {
+          return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+        }
       }
-    }
-  );
+    );
 
-  // 4. Update a company
-  server.tool(
-    'beeno_companies_update',
-    'Update an existing company\'s properties',
-    {
-      companyId: z.string().describe('The company ID to update'),
-      properties: z.record(z.any()).describe('Company properties to update as key-value pairs')
-    },
-    async (params) => {
-      try {
-        const result = await client.patch(`/companies/${params.companyId}`, { properties: params.properties });
-        return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
-      } catch (error: any) {
-        return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+    // 4. Update a company
+    server.tool(
+      'beeno_companies_update',
+      'Update an existing company\'s properties',
+      {
+        companyId: z.string().describe('The company ID to update'),
+        properties: z.record(z.any()).describe('Company properties to update as key-value pairs')
+      },
+      async (params) => {
+        try {
+          const result = await client.patch(`/companies/${params.companyId}`, { properties: params.properties });
+          return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+        } catch (error: any) {
+          return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+        }
       }
-    }
-  );
+    );
 
-  // 5. Delete a company
-  server.tool(
-    'beeno_companies_delete',
-    'Delete a company by ID',
-    {
-      companyId: z.string().describe('The company ID to delete')
-    },
-    async (params) => {
-      try {
-        const result = await client.delete(`/companies/${params.companyId}`);
-        return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
-      } catch (error: any) {
-        return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+    // 5. Delete a company
+    server.tool(
+      'beeno_companies_delete',
+      'Delete a company by ID',
+      {
+        companyId: z.string().describe('The company ID to delete')
+      },
+      async (params) => {
+        try {
+          const result = await client.delete(`/companies/${params.companyId}`);
+          return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+        } catch (error: any) {
+          return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
+        }
       }
-    }
-  );
+    );
+  }
 
   // 6. Search companies
   server.tool(
