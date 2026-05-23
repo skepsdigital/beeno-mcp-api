@@ -4,6 +4,7 @@ import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import { BeenoApiClient } from './client.js';
 import { LambdaTransport } from './lambda-transport.js';
 import { RequestValidator } from './request-validator.js';
+import { generateSessionId, isValidSessionId } from './session.js';
 import { registerContactTools } from './tools/contacts.js';
 import { registerDealTools } from './tools/deals.js';
 import { registerCompanyTools } from './tools/companies.js';
@@ -86,6 +87,16 @@ export const handler = async (
 
   const { domain, apiKey, readonly, apiKeyName, whatsappApiKey } = validation;
 
+  // Validate session ID format if provided (future: look up in DynamoDB)
+  const incomingSessionId = event.headers['mcp-session-id'];
+  if (incomingSessionId && !isValidSessionId(incomingSessionId)) {
+    return {
+      statusCode: 400,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'Invalid Mcp-Session-Id format (expected UUID v4)' }),
+    };
+  }
+
   let body: JSONRPCMessage;
   try {
     body = JSON.parse(event.body) as JSONRPCMessage;
@@ -98,14 +109,23 @@ export const handler = async (
     return { statusCode: 202, body: '' };
   }
 
+  const isInitialize = 'method' in body && (body as { method: string }).method === 'initialize';
+
   const { server, transport } = buildMcpServer(domain, apiKey, readonly, apiKeyName, whatsappApiKey);
   await server.connect(transport);
 
   try {
     const response = await transport.handleRequest(body);
+
+    const responseHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (isInitialize) {
+      // Return a new session ID on initialize (future: persist in DynamoDB)
+      responseHeaders['Mcp-Session-Id'] = generateSessionId();
+    }
+
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: responseHeaders,
       body: JSON.stringify(response),
     };
   } catch (err) {

@@ -76,10 +76,24 @@ function parseToolResult(body: Record<string, unknown>): unknown {
   return JSON.parse(result.content[0].text);
 }
 
+async function mcpWithHeaders(
+  method: string,
+  params: Record<string, unknown>,
+  extraHeaders: Record<string, string>,
+) {
+  const res = await fetch(`${BASE}/mcp`, {
+    method: 'POST',
+    headers: { ...authHeaders(), ...extraHeaders },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
+  });
+  return { status: res.status, body: await res.json(), headers: res.headers };
+}
+
 // ─── shared state between tests ──────────────────────────────────────────────
 
 let contactId: string;
 let dealId: string | null;
+let sessionId: string;
 
 // ─── tests ───────────────────────────────────────────────────────────────────
 
@@ -100,16 +114,28 @@ describe('Auth', () => {
 });
 
 describe('Protocolo MCP', () => {
-  it('initialize — retorna protocolVersion e serverInfo', async () => {
-    const { status, body } = await mcp('initialize', {
+  it('initialize — retorna protocolVersion, serverInfo e Mcp-Session-Id UUID v4', async () => {
+    const { status, body, headers } = await mcpWithHeaders('initialize', {
       protocolVersion: '2024-11-05',
       capabilities: {},
       clientInfo: { name: 'jest', version: '1.0' },
-    });
+    }, {});
     expect(status).toBe(200);
     const result = (body as { result: { protocolVersion: string; serverInfo: { name: string } } }).result;
     expect(result.protocolVersion).toBe('2024-11-05');
     expect(result.serverInfo.name).toMatch(/beeno/);
+    sessionId = headers.get('mcp-session-id') ?? '';
+    expect(sessionId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+  });
+
+  it('request com Mcp-Session-Id válido — aceita e processa', async () => {
+    const { status } = await mcpWithHeaders('tools/list', {}, { 'Mcp-Session-Id': sessionId });
+    expect(status).toBe(200);
+  });
+
+  it('request com Mcp-Session-Id inválido — retorna 400', async () => {
+    const { status } = await mcpWithHeaders('tools/list', {}, { 'Mcp-Session-Id': 'nao-e-um-uuid' });
+    expect(status).toBe(400);
   });
 
   it('tools/list — retorna 21 tools no modo readonly', async () => {
