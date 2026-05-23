@@ -12,7 +12,27 @@
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
     "dev:http": "tsx src/local.ts",
-    "test:sam": "sam local start-api"
+    "test:sam": "sam local start-api",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+  },
+  "jest": {
+    "preset": "ts-jest/presets/default-esm",
+    "testEnvironment": "node",
+    "extensionsToTreatAsEsm": [".ts"],
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    },
+    "transform": {
+      "^.+\\.tsx?$": ["ts-jest", {
+        "useESM": true,
+        "tsconfig": {
+          "module": "ESNext",
+          "moduleResolution": "Bundler"
+        }
+      }]
+    },
+    "testMatch": ["**/tests/**/*.test.ts"],
+    "testTimeout": 30000
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",
@@ -20,8 +40,11 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.161",
+    "@types/jest": "^29.5.14",
     "@types/node": "^22.0.0",
     "esbuild": "^0.28.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.4.11",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0"
   }
