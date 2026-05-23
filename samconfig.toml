@@ -1,0 +1,28 @@
+version = 0.1
+
+[default]
+[default.global]
+[default.global.parameters]
+stack_name = "beeno-mcp-server"
+
+[default.build]
+[default.build.parameters]
+cached = true
+parallel = true
+
+[default.validate]
+[default.validate.parameters]
+lint = true
+
+[default.deploy]
+[default.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+region = "sa-east-1"
+disable_rollback = false
+image_repositories = []
+
+[default.local_start_api]
+[default.local_start_api.parameters]
+warm_containers = "EAGER"
