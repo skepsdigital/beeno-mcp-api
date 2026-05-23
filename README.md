@@ -1,173 +1,208 @@
 # Beeno MCP Server
 
-MCP (Model Context Protocol) server para integração com a API do Beeno CRM. Permite que assistentes de IA (Claude, etc.) interajam diretamente com o Beeno para gerenciar contatos, deals, empresas e mais.
+MCP (Model Context Protocol) server para integração com a API do Beeno CRM. Permite que assistentes de IA (Claude, etc.) gerenciem contatos, deals, empresas, tarefas e mais.
+
+Suporta dois modos de operação:
+- **Local (stdio)** — processo local via Claude Code / Claude Desktop
+- **Remoto (HTTP)** — servidor HTTP deployado em AWS Lambda, acessível por qualquer cliente MCP
+
+---
 
 ## Ferramentas Disponíveis
 
-### Modo Completo (Read/Write) - 47 tools
-| Módulo | Descrição |
-|--------|-----------|
-| **Contacts** | Criar, buscar, atualizar e listar contatos |
-| **Deals** | Gerenciar negociações e oportunidades |
-| **Companies** | Gerenciar empresas |
-| **Pipelines** | Consultar pipelines e estágios, criar novos |
-| **Products** | Gerenciar produtos |
-| **Notes** | Adicionar notas a contatos e deals |
-| **Tasks** | Criar e gerenciar tarefas |
-| **Associations** | Associar entidades (contatos, deals, empresas, produtos) |
-| **Properties** | Consultar e criar propriedades customizadas |
-| **Segments** | Gerenciar segmentos e adicionar contatos |
-| **Automation** | Disparar automações |
-| **Forms** | Gerenciar formulários |
-| **Communications** | Enviar mensagens (WhatsApp, etc.) |
+### Modo Read-Only — 21 tools (padrão)
+| Módulo | Tools |
+|--------|-------|
+| Contacts | list, read, search |
+| Deals | list, read, search |
+| Companies | list, read, search |
+| Pipelines | list |
+| Products | list, read, search |
+| Notes | list |
+| Tasks | list, read, search |
+| Properties | list |
+| Segments | list |
+| Forms | list, read |
 
-### Modo Somente Leitura (Read-Only) - 21 tools
-Quando `BEENO_READONLY=true`, apenas ferramentas de consulta estão disponíveis:
-- **Contacts**: list, read, search
-- **Deals**: list, read, search
-- **Companies**: list, read, search
-- **Pipelines**: list
-- **Products**: list, read, search
-- **Notes**: list
-- **Tasks**: list, read, search
-- **Properties**: list
-- **Segments**: list
-- **Forms**: list, read
+### Modo Read/Write — 47 tools
+Inclui todas acima, mais:
 
-## Pré-requisitos
+| Módulo | Tools extras |
+|--------|-------------|
+| Contacts | create, update, delete |
+| Deals | create, update, delete |
+| Companies | create, update, delete |
+| Products | create, update, delete |
+| Notes | create, delete |
+| Tasks | create, update, delete |
+| Properties | create |
+| Segments | create, add_contacts |
+| Associations | create, delete |
+| Automation | add_contacts |
+| Communications | whatsapp_send_template |
+
+---
+
+## Modo Local (stdio)
+
+Para uso direto com Claude Code ou Claude Desktop como processo local.
+
+### Pré-requisitos
 
 - Node.js 18+
 - Conta no [Beeno CRM](https://app.beeno.ai) com API Key
 
-## Instalação
+### Instalação
 
 ```bash
 npm install
 npm run build
 ```
 
-## Configuração
+### Configuração
 
-O arquivo `.mcp.json.example` é o template de configuração do MCP. As credenciais são passadas diretamente via `env` no MCP — não é necessário arquivo `.env`.
-
-**Passo 1** — Copie o template para `.mcp.json`:
+Copie o template e ajuste as credenciais:
 
 ```bash
 cp .mcp.json.example .mcp.json
 ```
 
-**Passo 2** — Ajuste o caminho do servidor Beeno de acordo com onde você clonou o projeto. No campo `args`, substitua o caminho absoluto pelo local correto no seu ambiente:
+Edite `.mcp.json`:
 
 ```jsonc
-// Exemplo: se você clonou em C:/projetos/beeno-mcp
-"beeno": {
-  "command": "node",
-  "args": ["C:/projetos/beeno-mcp/dist/index.js"],
-  ...
+{
+  "mcpServers": {
+    "beeno": {
+      "command": "node",
+      "args": ["/caminho/para/beeno-mcp-api/dist/index.js"],
+      "env": {
+        "BEENO_DOMAIN": "https://app.beeno.ai/seu-tenant-id",
+        "BEENO_API_KEY": "sua-api-key",
+        "BEENO_READONLY": "false"   // omitir ou "true" para somente leitura
+      }
+    }
+  }
 }
 ```
 
-**Passo 3** — Preencha suas credenciais do Beeno:
+> `.mcp.json` está no `.gitignore` — nunca commite credenciais.
 
-```jsonc
-"env": {
-  "BEENO_DOMAIN": "https://app.beeno.ai/seu-tenant-id",  // URL da sua instância
-  "BEENO_API_KEY": "sua-api-key-aqui",                   // API Key gerada no Beeno
-  "BEENO_READONLY": "false"                              // (opcional) Ativar modo somente leitura
+---
+
+## Modo Remoto (HTTP / AWS Lambda)
+
+O servidor HTTP é **agnóstico** — não armazena credenciais. Cada request deve enviar as credenciais via headers HTTP.
+
+### Headers obrigatórios
+
+| Header | Descrição |
+|--------|-----------|
+| `x-beeno-domain` | URL do tenant Beeno (ex: `https://app.beeno.ai/seu-tenant`) |
+| `x-beeno-api-key` | API Key do Beeno CRM |
+
+### Headers opcionais
+
+| Header | Default | Descrição |
+|--------|---------|-----------|
+| `x-beeno-readonly` | `true` | `false` para ativar escrita |
+| `x-beeno-api-key-name` | `ELOZ-APIKEY` | Nome do header da API Key |
+| `x-beeno-whatsapp-api-key` | — | API Key do WhatsApp |
+
+### Configuração do cliente MCP (remoto)
+
+```json
+{
+  "mcpServers": {
+    "beeno": {
+      "url": "https://<api-id>.execute-api.sa-east-1.amazonaws.com/prod/mcp",
+      "headers": {
+        "x-beeno-domain": "https://app.beeno.ai/seu-tenant",
+        "x-beeno-api-key": "sua-api-key",
+        "x-beeno-readonly": "false"
+      }
+    }
+  }
 }
 ```
 
-### Modo Somente Leitura
+### Servidor local HTTP (dev)
 
-Por padrão, o servidor inicia em **modo somente leitura** (21 tools de consulta). Para ativar escrita, defina explicitamente:
-
-```jsonc
-"env": {
-  "BEENO_READONLY": "false"  // Libera ferramentas de write (create, update, delete)
-}
-```
-
-**Exemplos de configuração:**
-
-- **Somente leitura (padrão):** Não defina `BEENO_READONLY` ou deixe em branco
-- **Somente leitura (explícito):** `"BEENO_READONLY": "true"`
-- **Leitura + Escrita:** `"BEENO_READONLY": "false"`
-
-> **Importante:** O `.mcp.json` contém credenciais sensíveis e está no `.gitignore`. Nunca faça commit deste arquivo. Apenas os `.mcp.json.example*` (sem credenciais) devem ser versionados.
-
-## Uso
-
-### Modo desenvolvimento
+Sobe o servidor HTTP na porta 3000, sem precisar da Lambda:
 
 ```bash
-npm run dev
+# opcional: crie .env com as credenciais para injeção automática nos headers
+cp .env.example .env
+
+npm run dev:http
 ```
 
-### Modo produção
+Teste rápido:
 
 ```bash
-npm run build
-npm start
+curl -X POST http://localhost:3000/mcp \
+  -H "Content-Type: application/json" \
+  -H "x-beeno-domain: https://app.beeno.ai/seu-tenant" \
+  -H "x-beeno-api-key: sua-chave" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
 ```
 
-### Via MCP (Claude Code)
+### Deploy AWS Lambda
 
-Com o `.mcp.json` configurado, o servidor é iniciado automaticamente pelo Claude Code. As ferramentas ficam disponíveis diretamente no chat.
+Pré-requisitos: AWS CLI configurado, SAM CLI instalado, esbuild no PATH (`npm install -g esbuild`).
 
-## Exemplos de Uso
+```bash
+npm run deploy
+# sam build + sam deploy em sequência
+# na primeira vez, use: sam deploy --guided
+```
 
-Após configurar o MCP, basta pedir em linguagem natural na sua ferramenta de IA:
+A URL do endpoint é exibida nos Outputs do CloudFormation após o deploy (`BeenoMcpApi`).
 
-> **"Busque os negócios que têm data de fechamento prevista para este mês"**
->
-> O assistente vai utilizar a ferramenta de deals para filtrar negociações com `closedate` dentro do mês atual e retornar os resultados.
+---
 
-> **"Traga os 200 contatos mais recentes"**
->
-> O assistente vai listar contatos ordenados por data de criação (`date_added`) em ordem decrescente, com limite de 200 registros.
+## Testes
+
+Os testes de integração sobem um servidor interno e fazem chamadas reais à API do Beeno. Requerem as duas variáveis de ambiente:
+
+```bash
+BEENO_DOMAIN="https://app.beeno.ai/seu-tenant" \
+BEENO_API_KEY="sua-chave" \
+npm test
+```
+
+---
 
 ## Estrutura do Projeto
 
 ```
-beeno-mcp/
+beeno-mcp-api/
 ├── src/
-│   ├── index.ts          # Entry point - registra tools, controla modo readonly
-│   ├── client.ts         # Cliente HTTP para a API do Beeno
-│   ├── schemas.ts        # Schemas Zod para validação
-│   ├── types.ts          # Tipos TypeScript
-│   └── tools/            # Ferramentas MCP (uma por módulo)
-│       ├── contacts.ts
-│       ├── deals.ts
-│       ├── companies.ts
-│       ├── pipelines.ts
-│       ├── products.ts
-│       ├── notes.ts
-│       ├── tasks.ts
-│       ├── associations.ts    (apenas modo write)
-│       ├── properties.ts
-│       ├── segments.ts
-│       ├── automation.ts       (apenas modo write)
-│       ├── forms.ts
-│       └── communications.ts   (apenas modo write)
-├── .mcp.json.example           # Template com ambas as configurações
-├── .mcp.json.example.read      # Template para modo somente leitura
-├── .mcp.json.example.readwrite # Template para modo read/write
-├── package.json
-└── tsconfig.json
+│   ├── index.ts              # Entry point stdio (local)
+│   ├── handler.ts            # Lambda handler (HTTP remoto)
+│   ├── local.ts              # Servidor HTTP local para dev
+│   ├── lambda-transport.ts   # Transport MCP para Lambda
+│   ├── request-validator.ts  # Validação de headers obrigatórios
+│   ├── client.ts             # Cliente HTTP da API Beeno
+│   ├── schemas.ts            # Schemas Zod
+│   ├── types.ts              # Tipos TypeScript
+│   └── tools/                # Uma tool por módulo do CRM
+├── tests/
+│   └── mcp.test.ts           # Testes de integração (Jest)
+├── template.yaml             # SAM template (AWS Lambda)
+├── samconfig.toml            # Configuração do SAM CLI
+├── .env.example              # Template de credenciais locais
+├── .mcp.json.example         # Template de configuração MCP (stdio)
+└── package.json
 ```
 
-## Arquivos de Configuração
+---
 
-- **`.mcp.json.example`**: Template com exemplo de ambas as configurações (read-only padrão + read/write)
-- **`.mcp.json.example.read`**: Configuração para modo somente leitura (21 tools)
-- **`.mcp.json.example.readwrite`**: Configuração para modo completo com escrita (47 tools)
+## Scripts
 
-Copie o arquivo de exemplo que melhor se adapte ao seu caso:
-
-```bash
-# Para somente leitura (padrão seguro)
-cp .mcp.json.example.read .mcp.json
-
-# Para leitura + escrita
-cp .mcp.json.example.readwrite .mcp.json
-```
+| Comando | Descrição |
+|---------|-----------|
+| `npm run dev` | Servidor stdio local (Claude Code) |
+| `npm run dev:http` | Servidor HTTP local na porta 3000 |
+| `npm run build` | Compila TypeScript |
+| `npm test` | Roda testes de integração |
+| `npm run deploy` | `sam build` + `sam deploy` |
