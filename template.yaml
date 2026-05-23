@@ -4,15 +4,20 @@ Description: Beeno CRM MCP Server (agnostic — credentials via HTTP headers)
 
 Globals:
   Function:
-    Runtime: nodejs18.x
+    Runtime: nodejs22.x
     Architectures:
-      - x86_64
-    Timeout: 300
+      - arm64 # Use ARM architecture for cost-efficiency
+    Timeout: 90
     MemorySize: 256
     Tags:
       APP: beeno-mcp-server
 
 Resources:
+  BeenoMcpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: prod
+
   BeenoMcpFunction:
     Type: AWS::Serverless::Function
     Metadata:
@@ -31,20 +36,22 @@ Resources:
       Description: "Beeno CRM MCP Server — credentials sent by client via headers"
       Events:
         McpPost:
-          Type: Api
+          Type: HttpApi
           Properties:
+            ApiId: !Ref BeenoMcpApi
             Path: /mcp
             Method: post
         McpGet:
-          Type: Api
+          Type: HttpApi
           Properties:
+            ApiId: !Ref BeenoMcpApi
             Path: /mcp
             Method: get
 
 Outputs:
   BeenoMcpApi:
     Description: URL do MCP Server
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/mcp"
+    Value: !Sub "https://${BeenoMcpApi}.execute-api.${AWS::Region}.amazonaws.com/prod/mcp"
   BeenoMcpFunction:
     Description: ARN da Lambda Function
     Value: !GetAtt BeenoMcpFunction.Arn
