@@ -89,7 +89,7 @@ export const handler = async (
     };
   }
 
-  const { domain, apiKey, readonly, apiKeyName, whatsappApiKey } = validation;
+  const { domain, apiKey, readonly, apiKeyName, whatsappApiKey, allowedTools } = validation;
 
   // Validate session ID format if provided (future: look up in DynamoDB)
   const incomingSessionId = event.headers['mcp-session-id'];
@@ -128,7 +128,14 @@ export const handler = async (
   await server.connect(transport);
 
   try {
-    const response = await transport.handleRequest(body);
+    let response = await transport.handleRequest(body);
+
+    if (rpcMethod === 'tools/list' && allowedTools && allowedTools.length > 0) {
+      const r = response as { result?: { tools?: Array<{ name: string }> } };
+      if (r?.result?.tools) {
+        r.result.tools = r.result.tools.filter(t => allowedTools.includes(t.name));
+      }
+    }
 
     const responseHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
     if (isInitialize) {

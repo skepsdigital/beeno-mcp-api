@@ -5,6 +5,7 @@ type ValidationOk = {
   readonly: boolean;
   apiKeyName: string;
   whatsappApiKey?: string;
+  allowedTools?: string[];
 };
 
 type ValidationError = {
@@ -44,6 +45,11 @@ export class RequestValidator {
       };
     }
 
+    const toolsHeader = headers['x-beeno-tools'];
+    const allowedTools = toolsHeader
+      ? toolsHeader.split(',').map(t => t.trim()).filter(Boolean)
+      : undefined;
+
     return {
       valid: true,
       domain,
@@ -51,6 +57,7 @@ export class RequestValidator {
       readonly: headers['x-beeno-readonly'] !== 'false',
       apiKeyName: headers['x-beeno-api-key-name'] ?? 'ELOZ-APIKEY',
       whatsappApiKey: headers['x-beeno-whatsapp-api-key'],
+      allowedTools,
     };
   }
 }
