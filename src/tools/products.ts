@@ -52,11 +52,11 @@ export function registerProductTools(server: McpServer, client: BeenoApiClient, 
       'beeno_products_create',
       'Create a new product in Beeno CRM. Available properties: name, price, sku, frequency, unit_cost, url, months_term, description.',
       {
-        properties: z.record(z.any()).describe('Product properties as key-value pairs')
+        properties: z.string().describe('JSON string of product properties (e.g. {"name":"Product","price":"99.90","sku":"SKU-001"})')
       },
       async (params) => {
         try {
-          const result = await client.post('/products', { properties: params.properties });
+          const result = await client.post('/products', { properties: JSON.parse(params.properties) });
           return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
         } catch (error: any) {
           return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
@@ -70,11 +70,11 @@ export function registerProductTools(server: McpServer, client: BeenoApiClient, 
       'Update an existing product in Beeno CRM. Only provided properties will be updated.',
       {
         productId: z.string().describe('The ID of the product to update'),
-        properties: z.record(z.any()).describe('Product properties to update as key-value pairs')
+        properties: z.string().describe('JSON string of product properties to update (e.g. {"name":"Product","price":"99.90"})')
       },
       async (params) => {
         try {
-          const result = await client.patch(`/products/${params.productId}`, { properties: params.properties });
+          const result = await client.patch(`/products/${params.productId}`, { properties: JSON.parse(params.properties) });
           return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
         } catch (error: any) {
           return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };

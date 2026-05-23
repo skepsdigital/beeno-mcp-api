@@ -56,7 +56,7 @@ export function registerDealTools(server: McpServer, client: BeenoApiClient, rea
       'beeno_deals_create',
       'Create a new deal. Required properties typically include pipeline_id, stage_id, name.',
       {
-        properties: z.record(z.any()).describe('Deal properties (pipeline_id, stage_id, name, etc.)'),
+        properties: z.string().describe('JSON string of deal properties (e.g. {"pipeline_id":"3","stage_id":"15","name":"Deal name"})'),
         associations: z.object({
           products: z.array(z.object({
             id: z.number().describe('Product ID'),
@@ -69,7 +69,7 @@ export function registerDealTools(server: McpServer, client: BeenoApiClient, rea
       },
       async (params) => {
         try {
-          const body: Record<string, any> = { properties: params.properties };
+          const body: Record<string, any> = { properties: JSON.parse(params.properties) };
           if (params.associations != null) {
             body.associations = params.associations;
           }
@@ -87,11 +87,11 @@ export function registerDealTools(server: McpServer, client: BeenoApiClient, rea
       'Update an existing deal by ID',
       {
         dealId: z.string().describe('The deal ID to update'),
-        properties: z.record(z.any()).describe('Deal properties to update')
+        properties: z.string().describe('JSON string of deal properties to update (e.g. {"stage_id":"15","name":"New name"})')
       },
       async (params) => {
         try {
-          const result = await client.patch(`/deals/${params.dealId}`, { properties: params.properties });
+          const result = await client.patch(`/deals/${params.dealId}`, { properties: JSON.parse(params.properties) });
           return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
         } catch (error: any) {
           return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };

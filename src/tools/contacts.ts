@@ -60,7 +60,7 @@ export function registerContactTools(server: McpServer, client: BeenoApiClient, 
       'beeno_contacts_create',
       'Create a new contact in Beeno CRM. Property value formats: MultiSelect fields expect an array, Date/DateTime fields expect "YYYY-MM-DD HH:mm" format, all other fields expect a string value.',
       {
-        properties: z.record(z.any()).describe('Contact properties as key-value pairs'),
+        properties: z.string().describe('JSON string of contact properties (e.g. {"first_name":"John","email":"john@example.com"})'),
         associations: z.object({
           deals: z.array(z.number()).nullable().describe('Array of deal IDs to associate'),
           companies: z.array(z.number()).nullable().describe('Array of company IDs to associate')
@@ -68,7 +68,7 @@ export function registerContactTools(server: McpServer, client: BeenoApiClient, 
       },
       async (params) => {
         try {
-          const body: Record<string, any> = { properties: params.properties };
+          const body: Record<string, any> = { properties: JSON.parse(params.properties) };
           if (params.associations != null) body.associations = params.associations;
 
           const result = await client.post('/contacts', body);
@@ -85,11 +85,11 @@ export function registerContactTools(server: McpServer, client: BeenoApiClient, 
       'Update an existing contact in Beeno CRM. Only provided properties will be updated. Set a property value to null to clear it.',
       {
         contactId: z.string().describe('The ID of the contact to update'),
-        properties: z.record(z.any()).describe('Contact properties to update as key-value pairs')
+        properties: z.string().describe('JSON string of contact properties to update (e.g. {"first_name":"John","phone":"5511999"})')
       },
       async (params) => {
         try {
-          const result = await client.patch(`/contacts/${params.contactId}`, { properties: params.properties });
+          const result = await client.patch(`/contacts/${params.contactId}`, { properties: JSON.parse(params.properties) });
           return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
         } catch (error: any) {
           return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };

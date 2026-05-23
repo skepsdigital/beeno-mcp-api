@@ -56,7 +56,7 @@ export function registerCompanyTools(server: McpServer, client: BeenoApiClient, 
       'beeno_companies_create',
       'Create a new company with properties and optional associations',
       {
-        properties: z.record(z.any()).describe('Company properties as key-value pairs (e.g. name, domain, industry)'),
+        properties: z.string().describe('JSON string of company properties (e.g. {"name":"Acme","domain":"acme.com"})'),
         associations: z.object({
           contacts: z.array(z.number()).nullable().describe('Array of contact IDs to associate'),
           deals: z.array(z.number()).nullable().describe('Array of deal IDs to associate')
@@ -64,7 +64,7 @@ export function registerCompanyTools(server: McpServer, client: BeenoApiClient, 
       },
       async (params) => {
         try {
-          const body: Record<string, any> = { properties: params.properties };
+          const body: Record<string, any> = { properties: JSON.parse(params.properties) };
           if (params.associations != null) body.associations = params.associations;
 
           const result = await client.post('/companies', body);
@@ -81,11 +81,11 @@ export function registerCompanyTools(server: McpServer, client: BeenoApiClient, 
       'Update an existing company\'s properties',
       {
         companyId: z.string().describe('The company ID to update'),
-        properties: z.record(z.any()).describe('Company properties to update as key-value pairs')
+        properties: z.string().describe('JSON string of company properties to update (e.g. {"name":"Acme","domain":"acme.com"})')
       },
       async (params) => {
         try {
-          const result = await client.patch(`/companies/${params.companyId}`, { properties: params.properties });
+          const result = await client.patch(`/companies/${params.companyId}`, { properties: JSON.parse(params.properties) });
           return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
         } catch (error: any) {
           return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };

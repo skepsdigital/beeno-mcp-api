@@ -81,11 +81,11 @@ export function registerTaskTools(server: McpServer, client: BeenoApiClient, rea
       'Update an existing task in Beeno CRM. Only provided properties will be updated.',
       {
         taskId: z.string().describe('The ID of the task to update'),
-        properties: z.record(z.any()).describe('Task properties to update as key-value pairs')
+        properties: z.string().describe('JSON string of task properties to update (e.g. {"name":"Task name","due_date":"2025-01-31"})')
       },
       async (params) => {
         try {
-          const result = await client.patch(`/tasks/${params.taskId}`, { properties: params.properties });
+          const result = await client.patch(`/tasks/${params.taskId}`, { properties: JSON.parse(params.properties) });
           return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
         } catch (error: any) {
           return { content: [{ type: 'text' as const, text: `Error: ${error.message}` }], isError: true };
