@@ -9,6 +9,28 @@ import { generateSessionId, isValidSessionId } from './session.js';
 function log(level: 'INFO' | 'ERROR', trace: string, data: Record<string, unknown>) {
   console.log(JSON.stringify({ level, timestamp: new Date().toISOString(), trace, ...data }));
 }
+
+// Removes $schema and fixes free-form objects (z.record) that incorrectly get
+// additionalProperties:false from the MCP SDK — OpenAI strict mode rejects them.
+function fixToolSchema(schema: unknown): unknown {
+  if (typeof schema !== 'object' || schema === null) return schema;
+  if (Array.isArray(schema)) return schema.map(fixToolSchema);
+
+  const obj = { ...schema } as Record<string, unknown>;
+
+  delete obj['$schema'];
+
+  // Free-form object: type=object, additionalProperties=false, no properties defined
+  if (obj['type'] === 'object' && obj['additionalProperties'] === false && !('properties' in obj)) {
+    delete obj['additionalProperties'];
+  }
+
+  for (const key of Object.keys(obj)) {
+    obj[key] = fixToolSchema(obj[key]);
+  }
+
+  return obj;
+}
 import { registerContactTools } from './tools/contacts.js';
 import { registerDealTools } from './tools/deals.js';
 import { registerCompanyTools } from './tools/companies.js';
@@ -130,10 +152,16 @@ export const handler = async (
   try {
     let response = await transport.handleRequest(body);
 
-    if (rpcMethod === 'tools/list' && allowedTools && allowedTools.length > 0) {
-      const r = response as { result?: { tools?: Array<{ name: string }> } };
+    if (rpcMethod === 'tools/list') {
+      const r = response as { result?: { tools?: Array<{ name: string; inputSchema?: unknown }> } };
       if (r?.result?.tools) {
-        r.result.tools = r.result.tools.filter(t => allowedTools.includes(t.name));
+        if (allowedTools && allowedTools.length > 0) {
+          r.result.tools = r.result.tools.filter(t => allowedTools.includes(t.name));
+        }
+        r.result.tools = r.result.tools.map(t => ({
+          ...t,
+          inputSchema: fixToolSchema(t.inputSchema),
+        }));
       }
     }
 
