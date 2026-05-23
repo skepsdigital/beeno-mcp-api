@@ -3,6 +3,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import { BeenoApiClient } from './client.js';
 import { LambdaTransport } from './lambda-transport.js';
+import { RequestValidator } from './request-validator.js';
 import { registerContactTools } from './tools/contacts.js';
 import { registerDealTools } from './tools/deals.js';
 import { registerCompanyTools } from './tools/companies.js';
@@ -16,10 +17,6 @@ import { registerSegmentTools } from './tools/segments.js';
 import { registerAutomationTools } from './tools/automation.js';
 import { registerFormTools } from './tools/forms.js';
 import { registerCommunicationTools } from './tools/communications.js';
-
-function h(headers: Record<string, string | undefined>, key: string): string | undefined {
-  return headers[key.toLowerCase()] ?? headers[key];
-}
 
 function buildMcpServer(
   domain: string,
@@ -78,19 +75,16 @@ export const handler = async (
     return { statusCode: 400, body: 'Bad Request: empty body' };
   }
 
-  const hdrs = event.headers as Record<string, string | undefined>;
-  const domain = h(hdrs, 'x-beeno-domain');
-  const apiKey = h(hdrs, 'x-beeno-api-key');
-  if (!domain || !apiKey) {
+  const validation = RequestValidator.validate(event.headers as Record<string, string | undefined>);
+  if (!validation.valid) {
     return {
-      statusCode: 401,
+      statusCode: validation.statusCode,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Missing required headers: x-beeno-domain, x-beeno-api-key' }),
+      body: JSON.stringify({ error: validation.error }),
     };
   }
-  const readonly = h(hdrs, 'x-beeno-readonly') !== 'false';
-  const apiKeyName = h(hdrs, 'x-beeno-api-key-name') ?? 'ELOZ-APIKEY';
-  const whatsappApiKey = h(hdrs, 'x-beeno-whatsapp-api-key');
+
+  const { domain, apiKey, readonly, apiKeyName, whatsappApiKey } = validation;
 
   let body: JSONRPCMessage;
   try {
