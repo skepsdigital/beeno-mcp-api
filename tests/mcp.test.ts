@@ -1,5 +1,5 @@
 import http from 'http';
-import type { APIGatewayProxyEvent } from 'aws-lambda';
+import type { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { handler } from '../src/handler.js';
 
 const DOMAIN = process.env.BEENO_DOMAIN ?? '';
@@ -21,24 +21,25 @@ beforeAll(() =>
       const chunks: Buffer[] = [];
       for await (const chunk of req) chunks.push(chunk as Buffer);
 
-      const event: APIGatewayProxyEvent = {
-        httpMethod: req.method ?? 'POST',
-        path: req.url ?? '/mcp',
+      const event: APIGatewayProxyEventV2 = {
+        version: '2.0',
+        routeKey: `${req.method} /mcp`,
+        rawPath: req.url ?? '/mcp',
+        rawQueryString: '',
         body: Buffer.concat(chunks).toString(),
         headers: req.headers as Record<string, string>,
-        multiValueHeaders: {},
-        queryStringParameters: null,
-        multiValueQueryStringParameters: null,
-        pathParameters: null,
-        stageVariables: null,
-        requestContext: {} as APIGatewayProxyEvent['requestContext'],
-        resource: '',
         isBase64Encoded: false,
+        requestContext: {
+          http: { method: req.method ?? 'POST', path: req.url ?? '/mcp', protocol: 'HTTP/1.1', sourceIp: '127.0.0.1', userAgent: '' },
+        } as APIGatewayProxyEventV2['requestContext'],
       };
 
       const result = await handler(event);
-      res.writeHead(result.statusCode, result.headers as Record<string, string>);
-      res.end(result.body ?? '');
+      const statusCode = typeof result === 'object' && 'statusCode' in result ? (result as { statusCode: number }).statusCode : 200;
+      const headers = typeof result === 'object' && 'headers' in result ? (result as { headers: Record<string, string> }).headers : {};
+      const body = typeof result === 'object' && 'body' in result ? (result as { body: string }).body : '';
+      res.writeHead(statusCode, headers as Record<string, string>);
+      res.end(body ?? '');
     });
     server.listen(PORT, resolve);
   })

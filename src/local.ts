@@ -4,7 +4,7 @@ import http from 'http';
 import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
 import { handler } from './handler.js';
-import type { APIGatewayProxyEvent } from 'aws-lambda';
+import type { APIGatewayProxyEventV2 } from 'aws-lambda';
 
 // Load .env if present and map BEENO_* vars → x-beeno-* headers for local dev convenience
 const envPath = resolve(process.cwd(), '.env');
@@ -50,25 +50,25 @@ const server = http.createServer(async (req, res) => {
     ...(req.headers as Record<string, string>),
   };
 
-  const event: APIGatewayProxyEvent = {
-    httpMethod: req.method ?? 'POST',
-    path: req.url ?? '/mcp',
+  const event: APIGatewayProxyEventV2 = {
+    version: '2.0',
+    routeKey: `${req.method} /mcp`,
+    rawPath: req.url ?? '/mcp',
+    rawQueryString: '',
     body,
     headers,
-    multiValueHeaders: {},
-    queryStringParameters: null,
-    multiValueQueryStringParameters: null,
-    pathParameters: null,
-    stageVariables: null,
-    requestContext: {} as APIGatewayProxyEvent['requestContext'],
-    resource: '',
     isBase64Encoded: false,
+    requestContext: {
+      http: { method: req.method ?? 'POST', path: req.url ?? '/mcp', protocol: 'HTTP/1.1', sourceIp: '127.0.0.1', userAgent: '' },
+    } as APIGatewayProxyEventV2['requestContext'],
   };
 
   const result = await handler(event);
-  const responseHeaders = (result.headers ?? {}) as Record<string, string>;
-  res.writeHead(result.statusCode, responseHeaders);
-  res.end(result.body ?? '');
+  const responseHeaders = (typeof result === 'object' && result !== null && 'headers' in result ? result.headers : {}) as Record<string, string>;
+  const statusCode = typeof result === 'object' && result !== null && 'statusCode' in result ? (result as { statusCode: number }).statusCode : 200;
+  const resBody = typeof result === 'object' && result !== null && 'body' in result ? (result as { body: string }).body : '';
+  res.writeHead(statusCode, responseHeaders);
+  res.end(resBody ?? '');
 });
 
 server.listen(PORT, () => {

@@ -1,4 +1,4 @@
-import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import { BeenoApiClient } from './client.js';
@@ -62,9 +62,11 @@ function buildMcpServer(
 }
 
 export const handler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
-  if (event.httpMethod !== 'POST') {
+  event: APIGatewayProxyEventV2
+): Promise<APIGatewayProxyResultV2> => {
+  const method = event.requestContext.http.method;
+
+  if (method !== 'POST') {
     return {
       statusCode: 405,
       headers: { Allow: 'POST' },
