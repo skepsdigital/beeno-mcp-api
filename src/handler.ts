@@ -25,6 +25,14 @@ function fixToolSchema(schema: unknown): unknown {
     delete obj['additionalProperties'];
   }
 
+  // OpenAI strict mode doesn't accept type arrays — convert ["X","null"] to anyOf
+  if (Array.isArray(obj['type'])) {
+    const types = obj['type'] as string[];
+    const nonNull = types.filter(t => t !== 'null');
+    delete obj['type'];
+    obj['anyOf'] = [...nonNull.map(t => ({ type: t })), { type: 'null' }];
+  }
+
   for (const key of Object.keys(obj)) {
     obj[key] = fixToolSchema(obj[key]);
   }
