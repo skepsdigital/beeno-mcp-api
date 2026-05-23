@@ -16,10 +16,10 @@ export function registerProductTools(server: McpServer, client: BeenoApiClient, 
     async (params) => {
       try {
         const queryParams: Record<string, string> = {};
-        if (params.limit !== undefined) queryParams.limit = String(params.limit);
-        if (params.cursor !== undefined) queryParams.cursor = params.cursor;
-        if (params.sort !== undefined) queryParams.sort = params.sort;
-        if (params.order !== undefined) queryParams.order = params.order;
+        if (params.limit != null) queryParams.limit = String(params.limit);
+        if (params.cursor != null) queryParams.cursor = params.cursor;
+        if (params.sort != null) queryParams.sort = params.sort;
+        if (params.order != null) queryParams.order = params.order;
 
         const result = await client.get('/products', queryParams);
         return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
@@ -114,17 +114,17 @@ export function registerProductTools(server: McpServer, client: BeenoApiClient, 
     async (params) => {
       try {
         const body: Record<string, any> = { filters: params.filters };
-        if (params.sort !== undefined) body.sort = params.sort;
-        if (params.order !== undefined) body.order = params.order;
+        if (params.sort != null) body.sort = params.sort;
+        if (params.order != null) body.order = params.order;
 
         if (params.fetchAll) {
-          const result = await client.postAllPages('/products/search', body, params.maxResults);
+          const result = await client.postAllPages('/products/search', body, params.maxResults ?? undefined);
           return { content: [{ type: 'text' as const, text: JSON.stringify(result) }] };
         }
 
         const queryParams: Record<string, string> = {};
-        if (params.limit !== undefined) queryParams.limit = String(params.limit);
-        if (params.cursor !== undefined) queryParams.cursor = params.cursor;
+        if (params.limit != null) queryParams.limit = String(params.limit);
+        if (params.cursor != null) queryParams.cursor = params.cursor;
 
         const result = await client.post('/products/search', body, queryParams);
         return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };

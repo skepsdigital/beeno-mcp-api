@@ -10,11 +10,11 @@ export function registerCommunicationTools(server: McpServer, client: BeenoApiCl
     'BETA. Send a WhatsApp template message. Requires RVOPS_WHATSAPP_API_KEY env var.',
     {
       templateId: z.string().describe('Beeno template ID'),
-      variables: z.array(z.string()).optional().describe('Template variable values in order'),
+      variables: z.array(z.string()).nullable().describe('Template variable values in order'),
       numberTo: z.string().describe('Recipient WhatsApp number'),
       numberFrom: z.string().describe('Sender WhatsApp number'),
-      insertEvent: z.boolean().optional().describe('Whether to log this message to the contact timeline'),
-      ctaVariable: z.string().optional().describe('CTA button URL variable')
+      insertEvent: z.boolean().nullable().describe('Whether to log this message to the contact timeline'),
+      ctaVariable: z.string().nullable().describe('CTA button URL variable')
     },
     async (params) => {
       try {

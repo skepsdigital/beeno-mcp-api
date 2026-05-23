@@ -34,8 +34,8 @@ export function registerNoteTools(server: McpServer, client: BeenoApiClient, rea
         noteType: z.enum(['general', 'email', 'call', 'meeting', 'whatsapp']).describe('The type of note'),
         files: z.array(z.object({
           link: z.string().describe('URL of the file'),
-          name: z.string().optional().describe('Display name of the file')
-        })).optional().describe('Optional array of file attachments')
+          name: z.string().nullable().describe('Display name of the file')
+        })).nullable().describe('Optional array of file attachments')
       },
       async (params) => {
         try {
@@ -43,7 +43,7 @@ export function registerNoteTools(server: McpServer, client: BeenoApiClient, rea
             text: params.text,
             type: params.noteType
           };
-          if (params.files !== undefined) properties.files = params.files;
+          if (params.files != null) properties.files = params.files;
 
           const result = await client.post(`/notes/${params.fromObject}/${params.fromObjectId}`, { properties });
           return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };

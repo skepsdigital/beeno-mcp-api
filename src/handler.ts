@@ -5,6 +5,10 @@ import { BeenoApiClient } from './client.js';
 import { LambdaTransport } from './lambda-transport.js';
 import { RequestValidator } from './request-validator.js';
 import { generateSessionId, isValidSessionId } from './session.js';
+
+function log(level: 'INFO' | 'ERROR', trace: string, data: Record<string, unknown>) {
+  console.log(JSON.stringify({ level, timestamp: new Date().toISOString(), trace, ...data }));
+}
 import { registerContactTools } from './tools/contacts.js';
 import { registerDealTools } from './tools/deals.js';
 import { registerCompanyTools } from './tools/companies.js';
@@ -110,6 +114,15 @@ export const handler = async (
   }
 
   const isInitialize = 'method' in body && (body as { method: string }).method === 'initialize';
+  const rpcMethod = 'method' in body ? (body as { method: string }).method : 'unknown';
+  const clientInfo = isInitialize
+    ? ((body as { params?: { clientInfo?: { name?: string } } }).params?.clientInfo ?? {})
+    : null;
+  const clientName = clientInfo ? (clientInfo.name ?? 'unknown') : 'unknown';
+  const sessionId = incomingSessionId ?? 'new';
+  const trace = `${sessionId}|${clientName}`;
+
+  log('INFO', trace, { event: 'request', method: rpcMethod, body });
 
   const { server, transport } = buildMcpServer(domain, apiKey, readonly, apiKeyName, whatsappApiKey);
   await server.connect(transport);
@@ -119,9 +132,10 @@ export const handler = async (
 
     const responseHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
     if (isInitialize) {
-      // Return a new session ID on initialize (future: persist in DynamoDB)
       responseHeaders['Mcp-Session-Id'] = generateSessionId();
     }
+
+    log('INFO', trace, { event: 'response', method: rpcMethod, statusCode: 200, body: response });
 
     return {
       statusCode: 200,
@@ -129,7 +143,7 @@ export const handler = async (
       body: JSON.stringify(response),
     };
   } catch (err) {
-    console.error('MCP handler error:', err);
+    log('ERROR', trace, { event: 'error', method: rpcMethod, error: String(err) });
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },

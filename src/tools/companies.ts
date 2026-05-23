@@ -12,18 +12,18 @@ export function registerCompanyTools(server: McpServer, client: BeenoApiClient, 
     {
       ...paginationSchema,
       ...sortSchema,
-      properties: z.string().optional().describe('Comma-separated list of property names to include'),
-      includeAssociations: z.boolean().optional().describe('Include associated contacts and deals')
+      properties: z.string().nullable().describe('Comma-separated list of property names to include'),
+      includeAssociations: z.boolean().nullable().describe('Include associated contacts and deals')
     },
     async (params) => {
       try {
         const queryParams: Record<string, string> = {};
-        if (params.limit !== undefined) queryParams.limit = String(params.limit);
-        if (params.cursor !== undefined) queryParams.cursor = params.cursor;
-        if (params.sort !== undefined) queryParams.sort = params.sort;
-        if (params.order !== undefined) queryParams.order = params.order;
-        if (params.properties !== undefined) queryParams.properties = params.properties;
-        if (params.includeAssociations !== undefined) queryParams.includeAssociations = String(params.includeAssociations);
+        if (params.limit != null) queryParams.limit = String(params.limit);
+        if (params.cursor != null) queryParams.cursor = params.cursor;
+        if (params.sort != null) queryParams.sort = params.sort;
+        if (params.order != null) queryParams.order = params.order;
+        if (params.properties != null) queryParams.properties = params.properties;
+        if (params.includeAssociations != null) queryParams.includeAssociations = String(params.includeAssociations);
 
         const result = await client.get('/companies', queryParams);
         return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
@@ -58,14 +58,14 @@ export function registerCompanyTools(server: McpServer, client: BeenoApiClient, 
       {
         properties: z.record(z.any()).describe('Company properties as key-value pairs (e.g. name, domain, industry)'),
         associations: z.object({
-          contacts: z.array(z.number()).optional().describe('Array of contact IDs to associate'),
-          deals: z.array(z.number()).optional().describe('Array of deal IDs to associate')
-        }).optional().describe('Optional associations to link on creation')
+          contacts: z.array(z.number()).nullable().describe('Array of contact IDs to associate'),
+          deals: z.array(z.number()).nullable().describe('Array of deal IDs to associate')
+        }).nullable().describe('Optional associations to link on creation')
       },
       async (params) => {
         try {
           const body: Record<string, any> = { properties: params.properties };
-          if (params.associations) body.associations = params.associations;
+          if (params.associations != null) body.associations = params.associations;
 
           const result = await client.post('/companies', body);
           return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
@@ -117,7 +117,7 @@ export function registerCompanyTools(server: McpServer, client: BeenoApiClient, 
     'Search companies using filters. Use property "alias" from beeno_properties_list as propertyName. Set fetchAll=true to auto-paginate and return all results.',
     {
       filters: z.array(filterSchema).describe('Array of filter conditions to apply'),
-      properties: z.array(z.string()).optional().describe('Property alias names to include in results'),
+      properties: z.array(z.string()).nullable().describe('Property alias names to include in results'),
       ...paginationSchema,
       ...sortSchema,
       ...fetchAllSchema
@@ -125,18 +125,18 @@ export function registerCompanyTools(server: McpServer, client: BeenoApiClient, 
     async (params) => {
       try {
         const body: Record<string, any> = { filters: params.filters };
-        if (params.properties !== undefined) body.properties = params.properties;
-        if (params.sort !== undefined) body.sort = params.sort;
-        if (params.order !== undefined) body.order = params.order;
+        if (params.properties != null) body.properties = params.properties;
+        if (params.sort != null) body.sort = params.sort;
+        if (params.order != null) body.order = params.order;
 
         if (params.fetchAll) {
-          const result = await client.postAllPages('/companies/search', body, params.maxResults);
+          const result = await client.postAllPages('/companies/search', body, params.maxResults ?? undefined);
           return { content: [{ type: 'text' as const, text: JSON.stringify(result) }] };
         }
 
         const queryParams: Record<string, string> = {};
-        if (params.limit !== undefined) queryParams.limit = String(params.limit);
-        if (params.cursor !== undefined) queryParams.cursor = params.cursor;
+        if (params.limit != null) queryParams.limit = String(params.limit);
+        if (params.cursor != null) queryParams.cursor = params.cursor;
 
         const result = await client.post('/companies/search', body, queryParams);
         return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };

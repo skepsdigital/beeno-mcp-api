@@ -16,10 +16,10 @@ export function registerTaskTools(server: McpServer, client: BeenoApiClient, rea
     async (params) => {
       try {
         const queryParams: Record<string, string> = {};
-        if (params.limit !== undefined) queryParams.limit = String(params.limit);
-        if (params.cursor !== undefined) queryParams.cursor = params.cursor;
-        if (params.sort !== undefined) queryParams.sort = params.sort;
-        if (params.order !== undefined) queryParams.order = params.order;
+        if (params.limit != null) queryParams.limit = String(params.limit);
+        if (params.cursor != null) queryParams.cursor = params.cursor;
+        if (params.sort != null) queryParams.sort = params.sort;
+        if (params.order != null) queryParams.order = params.order;
 
         const result = await client.get('/tasks', queryParams);
         return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
@@ -54,15 +54,15 @@ export function registerTaskTools(server: McpServer, client: BeenoApiClient, rea
       {
         properties: z.object({
           name: z.string().describe('Task name'),
-          owner: z.number().optional().describe('Owner user ID'),
-          description: z.string().optional().describe('Task description'),
-          due_date: z.string().optional().describe('Due date in YYYY-MM-DD format'),
-          due_time: z.string().optional().describe('Due time in HH:mm format'),
-          task_type: z.enum(['todo', 'call', 'email', 'whatsapp']).optional().describe('Type of task'),
-          priority: z.enum(['0', '1', '2']).optional().describe('Priority: 0=low, 1=medium, 2=high'),
-          source: z.string().optional().describe('Source of the task'),
-          deals: z.array(z.string()).optional().describe('Array of deal IDs to associate'),
-          contacts: z.array(z.string()).optional().describe('Array of contact IDs to associate')
+          owner: z.number().nullable().describe('Owner user ID'),
+          description: z.string().nullable().describe('Task description'),
+          due_date: z.string().nullable().describe('Due date in YYYY-MM-DD format'),
+          due_time: z.string().nullable().describe('Due time in HH:mm format'),
+          task_type: z.enum(['todo', 'call', 'email', 'whatsapp']).nullable().describe('Type of task'),
+          priority: z.enum(['0', '1', '2']).nullable().describe('Priority: 0=low, 1=medium, 2=high'),
+          source: z.string().nullable().describe('Source of the task'),
+          deals: z.array(z.string()).nullable().describe('Array of deal IDs to associate'),
+          contacts: z.array(z.string()).nullable().describe('Array of contact IDs to associate')
         }).describe('Task properties')
       },
       async (params) => {
@@ -125,17 +125,17 @@ export function registerTaskTools(server: McpServer, client: BeenoApiClient, rea
     async (params) => {
       try {
         const body: Record<string, any> = { filters: params.filters };
-        if (params.sort !== undefined) body.sort = params.sort;
-        if (params.order !== undefined) body.order = params.order;
+        if (params.sort != null) body.sort = params.sort;
+        if (params.order != null) body.order = params.order;
 
         if (params.fetchAll) {
-          const result = await client.postAllPages('/tasks/search', body, params.maxResults);
+          const result = await client.postAllPages('/tasks/search', body, params.maxResults ?? undefined);
           return { content: [{ type: 'text' as const, text: JSON.stringify(result) }] };
         }
 
         const queryParams: Record<string, string> = {};
-        if (params.limit !== undefined) queryParams.limit = String(params.limit);
-        if (params.cursor !== undefined) queryParams.cursor = params.cursor;
+        if (params.limit != null) queryParams.limit = String(params.limit);
+        if (params.cursor != null) queryParams.cursor = params.cursor;
 
         const result = await client.post('/tasks/search', body, queryParams);
         return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };

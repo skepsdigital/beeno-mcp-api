@@ -11,16 +11,16 @@ export function registerSegmentTools(server: McpServer, client: BeenoApiClient, 
     'List segments with optional pagination and sorting',
     {
       ...paginationSchema,
-      sort: z.string().optional().describe('Sort field (e.g. date_added, date_modified)'),
-      order: z.enum(['asc', 'desc']).optional().describe('Sort direction (default: desc)')
+      sort: z.string().nullable().describe('Sort field (e.g. date_added, date_modified)'),
+      order: z.enum(['asc', 'desc']).nullable().describe('Sort direction (default: desc)')
     },
     async (params) => {
       try {
         const queryParams: Record<string, string> = {};
-        if (params.limit !== undefined) queryParams.limit = String(params.limit);
-        if (params.cursor !== undefined) queryParams.cursor = params.cursor;
-        if (params.sort !== undefined) queryParams.sort = params.sort;
-        if (params.order !== undefined) queryParams.order = params.order;
+        if (params.limit != null) queryParams.limit = String(params.limit);
+        if (params.cursor != null) queryParams.cursor = params.cursor;
+        if (params.sort != null) queryParams.sort = params.sort;
+        if (params.order != null) queryParams.order = params.order;
 
         const result = await client.get('/segments', queryParams);
         return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
@@ -37,8 +37,8 @@ export function registerSegmentTools(server: McpServer, client: BeenoApiClient, 
       'Create a new segment with optional initial contacts',
       {
         name: z.string().describe('Segment name'),
-        description: z.string().optional().describe('Segment description'),
-        contacts: z.array(z.number()).optional().describe('Array of contact IDs to add initially')
+        description: z.string().nullable().describe('Segment description'),
+        contacts: z.array(z.number()).nullable().describe('Array of contact IDs to add initially')
       },
       async (params) => {
         try {
@@ -48,7 +48,7 @@ export function registerSegmentTools(server: McpServer, client: BeenoApiClient, 
               description: params.description
             }
           };
-          if (params.contacts !== undefined) {
+          if (params.contacts != null) {
             body.contacts = params.contacts;
           }
           const result = await client.post('/segments', body);

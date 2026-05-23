@@ -14,16 +14,16 @@ export function registerAssociationTools(server: McpServer, client: BeenoApiClie
       toObject: z.enum(['deal', 'contact', 'company', 'product']).describe('Target object type'),
       toObjectId: z.string().describe('Target object ID'),
       data: z.object({
-        quantity: z.number().optional().describe('Product quantity (for deal->product)'),
-        linePrice: z.string().optional().describe('Line price (for deal->product)'),
-        forceUpdateAmount: z.boolean().optional().describe('Force update deal amount (for deal->product)')
-      }).optional().describe('Additional data for the association (used for deal->product)')
+        quantity: z.number().nullable().describe('Product quantity (for deal->product)'),
+        linePrice: z.string().nullable().describe('Line price (for deal->product)'),
+        forceUpdateAmount: z.boolean().nullable().describe('Force update deal amount (for deal->product)')
+      }).nullable().describe('Additional data for the association (used for deal->product)')
     },
     async (params) => {
       try {
         const result = await client.post(
           `/associations/${params.fromObject}/${params.fromObjectId}/${params.toObject}/${params.toObjectId}`,
-          params.data ? { data: params.data } : undefined
+          params.data != null ? { data: params.data } : undefined
         );
         return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
       } catch (error: any) {

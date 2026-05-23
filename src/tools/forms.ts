@@ -15,8 +15,8 @@ export function registerFormTools(server: McpServer, client: BeenoApiClient): vo
     async (params) => {
       try {
         const queryParams: Record<string, string> = {};
-        if (params.limit !== undefined) queryParams.limit = String(params.limit);
-        if (params.cursor !== undefined) queryParams.cursor = params.cursor;
+        if (params.limit != null) queryParams.limit = String(params.limit);
+        if (params.cursor != null) queryParams.cursor = params.cursor;
 
         const result = await client.get('/forms', queryParams);
         return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
