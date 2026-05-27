@@ -11,8 +11,8 @@ export function registerSegmentTools(server: McpServer, client: BeenoApiClient, 
     'List segments with optional pagination and sorting',
     {
       ...paginationSchema,
-      sort: z.string().nullable().describe('Sort field (e.g. date_added, date_modified)'),
-      order: z.enum(['asc', 'desc']).nullable().describe('Sort direction (default: desc)')
+      sort: z.string().nullish().describe('Sort field (e.g. date_added, date_modified)'),
+      order: z.enum(['asc', 'desc']).nullish().describe('Sort direction (default: desc)')
     },
     async (params) => {
       try {
@@ -37,8 +37,8 @@ export function registerSegmentTools(server: McpServer, client: BeenoApiClient, 
       'Create a new segment with optional initial contacts',
       {
         name: z.string().describe('Segment name'),
-        description: z.string().nullable().describe('Segment description'),
-        contacts: z.array(z.number()).nullable().describe('Array of contact IDs to add initially')
+        description: z.string().nullish().describe('Segment description'),
+        contacts: z.array(z.number()).nullish().describe('Array of contact IDs to add initially')
       },
       async (params) => {
         try {

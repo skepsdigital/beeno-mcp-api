@@ -12,8 +12,8 @@ export function registerCompanyTools(server: McpServer, client: BeenoApiClient, 
     {
       ...paginationSchema,
       ...sortSchema,
-      properties: z.string().nullable().describe('Comma-separated list of property names to include'),
-      includeAssociations: z.boolean().nullable().describe('Include associated contacts and deals')
+      properties: z.string().nullish().describe('Comma-separated list of property names to include'),
+      includeAssociations: z.boolean().nullish().describe('Include associated contacts and deals')
     },
     async (params) => {
       try {
@@ -58,9 +58,9 @@ export function registerCompanyTools(server: McpServer, client: BeenoApiClient, 
       {
         properties: z.string().describe('JSON string of company properties (e.g. {"name":"Acme","domain":"acme.com"})'),
         associations: z.object({
-          contacts: z.array(z.number()).nullable().describe('Array of contact IDs to associate'),
-          deals: z.array(z.number()).nullable().describe('Array of deal IDs to associate')
-        }).nullable().describe('Optional associations to link on creation')
+          contacts: z.array(z.number()).nullish().describe('Array of contact IDs to associate'),
+          deals: z.array(z.number()).nullish().describe('Array of deal IDs to associate')
+        }).nullish().describe('Optional associations to link on creation')
       },
       async (params) => {
         try {
@@ -117,7 +117,7 @@ export function registerCompanyTools(server: McpServer, client: BeenoApiClient, 
     'Search companies using filters. Use property "alias" from beeno_properties_list as propertyName. Set fetchAll=true to auto-paginate and return all results.',
     {
       filters: z.array(filterSchema).describe('Array of filter conditions to apply'),
-      properties: z.array(z.string()).nullable().describe('Property alias names to include in results'),
+      properties: z.array(z.string()).nullish().describe('Property alias names to include in results'),
       ...paginationSchema,
       ...sortSchema,
       ...fetchAllSchema

@@ -33,6 +33,13 @@ function fixToolSchema(schema: unknown): unknown {
     obj['anyOf'] = [...nonNull.map(t => ({ type: t })), { type: 'null' }];
   }
 
+  // OpenAI strict mode: all properties must be listed in required
+  if (obj['type'] === 'object' && typeof obj['properties'] === 'object' && obj['properties'] !== null) {
+    const propKeys = Object.keys(obj['properties'] as Record<string, unknown>);
+    const existing = Array.isArray(obj['required']) ? (obj['required'] as string[]) : [];
+    obj['required'] = [...new Set([...existing, ...propKeys])];
+  }
+
   for (const key of Object.keys(obj)) {
     obj[key] = fixToolSchema(obj[key]);
   }

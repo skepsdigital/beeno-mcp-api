@@ -34,8 +34,8 @@ export function registerNoteTools(server: McpServer, client: BeenoApiClient, rea
         noteType: z.enum(['general', 'email', 'call', 'meeting', 'whatsapp']).describe('The type of note'),
         files: z.array(z.object({
           link: z.string().describe('URL of the file'),
-          name: z.string().nullable().describe('Display name of the file')
-        })).nullable().describe('Optional array of file attachments')
+          name: z.string().nullish().describe('Display name of the file')
+        })).nullish().describe('Optional array of file attachments')
       },
       async (params) => {
         try {

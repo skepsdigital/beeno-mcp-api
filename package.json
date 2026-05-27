@@ -13,7 +13,7 @@
     "dev": "tsx src/index.ts",
     "dev:http": "tsx src/local.ts",
     "test:sam": "sam local start-api",
-    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test": "NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/.bin/jest",
     "deploy": "sam build && sam deploy"
   },
   "jest": {
@@ -33,7 +33,11 @@
       }]
     },
     "testMatch": ["**/tests/**/*.test.ts"],
-    "testTimeout": 30000
+    "testTimeout": 30000,
+    "silent": true,
+    "collectCoverage": true,
+    "coverageReporters": ["text-summary"],
+    "collectCoverageFrom": ["src/**/*.ts", "!src/index.ts", "!src/local.ts"]
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",

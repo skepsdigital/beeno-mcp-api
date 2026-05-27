@@ -2,14 +2,12 @@ import http from 'http';
 import type { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { handler } from '../src/handler.js';
 
-const DOMAIN = process.env.BEENO_DOMAIN ?? '';
-const API_KEY = process.env.BEENO_API_KEY ?? '';
+const DOMAIN = process.env.BEENO_DOMAIN ?? 'https://fake.beeno.test';
+const API_KEY = process.env.BEENO_API_KEY ?? 'fake-api-key';
+const HAS_CREDENTIALS = !!(process.env.BEENO_DOMAIN && process.env.BEENO_API_KEY);
+
 const PORT = 3099;
 const BASE = `http://localhost:${PORT}`;
-
-if (!DOMAIN || !API_KEY) {
-  throw new Error('BEENO_DOMAIN and BEENO_API_KEY must be set to run tests');
-}
 
 // ─── server setup ────────────────────────────────────────────────────────────
 
@@ -95,6 +93,9 @@ let contactId: string;
 let dealId: string | null;
 let sessionId: string;
 
+// Testes que fazem chamadas reais à API são pulados sem credenciais
+const itApi = HAS_CREDENTIALS ? it : it.skip;
+
 // ─── tests ───────────────────────────────────────────────────────────────────
 
 describe('Auth', () => {
@@ -144,10 +145,26 @@ describe('Protocolo MCP', () => {
     const tools = (body as { result: { tools: unknown[] } }).result.tools;
     expect(tools.length).toBe(21);
   });
+
+  it('tools/list — schemas não contêm type array (compatibilidade OpenAI strict)', async () => {
+    const { body } = await mcp('tools/list');
+    const tools = (body as { result: { tools: Array<{ inputSchema: unknown }> } }).result.tools;
+    const json = JSON.stringify(tools);
+    // Nenhum campo deve ter type como array (e.g. ["string","null"])
+    expect(json).not.toMatch(/"type":\[/);
+  });
+
+  it('tools/list — filtro x-beeno-tools retorna subset', async () => {
+    const { status, body } = await mcpWithHeaders('tools/list', {}, { 'x-beeno-tools': 'beeno_contacts_list,beeno_deals_list' });
+    expect(status).toBe(200);
+    const tools = (body as { result: { tools: Array<{ name: string }> } }).result.tools;
+    expect(tools.length).toBe(2);
+    expect(tools.map(t => t.name).sort()).toEqual(['beeno_contacts_list', 'beeno_deals_list']);
+  });
 });
 
 describe('Contacts', () => {
-  it('beeno_contacts_list — retorna resultados paginados', async () => {
+  itApi('beeno_contacts_list — retorna resultados paginados', async () => {
     const { status, body } = await callTool('beeno_contacts_list', { limit: 5 });
     expect(status).toBe(200);
     const data = parseToolResult(body as Record<string, unknown>) as { total: number; results: Array<{ id: number }> };
@@ -156,14 +173,14 @@ describe('Contacts', () => {
     contactId = String(data.results[0].id);
   });
 
-  it('beeno_contacts_read — retorna contato pelo ID', async () => {
+  itApi('beeno_contacts_read — retorna contato pelo ID', async () => {
     const { status, body } = await callTool('beeno_contacts_read', { contactId });
     expect(status).toBe(200);
     const data = parseToolResult(body as Record<string, unknown>) as { id: number };
     expect(String(data.id)).toBe(contactId);
   });
 
-  it('beeno_contacts_search — filtra por email', async () => {
+  itApi('beeno_contacts_search — filtra por email', async () => {
     const { status, body } = await callTool('beeno_contacts_search', {
       filters: [{ propertyName: 'email', operator: 'CONTAINS_TOKEN', value: 'volkswagen' }],
       limit: 5,
@@ -175,7 +192,7 @@ describe('Contacts', () => {
 });
 
 describe('Deals', () => {
-  it('beeno_deals_list — retorna lista (pode ser vazia)', async () => {
+  itApi('beeno_deals_list — retorna lista (pode ser vazia)', async () => {
     const { status, body } = await callTool('beeno_deals_list', { limit: 5 });
     expect(status).toBe(200);
     const data = parseToolResult(body as Record<string, unknown>) as { total: number; results: Array<{ id: number }> };
@@ -183,7 +200,7 @@ describe('Deals', () => {
     dealId = data.results[0] ? String(data.results[0].id) : null;
   });
 
-  it('beeno_deals_read — retorna deal pelo ID (se existir)', async () => {
+  itApi('beeno_deals_read — retorna deal pelo ID (se existir)', async () => {
     if (!dealId) return;
     const { status, body } = await callTool('beeno_deals_read', { dealId });
     expect(status).toBe(200);
@@ -193,7 +210,7 @@ describe('Deals', () => {
 });
 
 describe('Companies', () => {
-  it('beeno_companies_list — retorna lista', async () => {
+  itApi('beeno_companies_list — retorna lista', async () => {
     const { status, body } = await callTool('beeno_companies_list', { limit: 5 });
     expect(status).toBe(200);
     const data = parseToolResult(body as Record<string, unknown>) as { total: number };
@@ -202,7 +219,7 @@ describe('Companies', () => {
 });
 
 describe('Pipelines', () => {
-  it('beeno_pipelines_list — retorna pipelines', async () => {
+  itApi('beeno_pipelines_list — retorna pipelines', async () => {
     const { status, body } = await callTool('beeno_pipelines_list', {});
     expect(status).toBe(200);
     const data = parseToolResult(body as Record<string, unknown>) as { results: unknown[] };
@@ -211,7 +228,7 @@ describe('Pipelines', () => {
 });
 
 describe('Tasks', () => {
-  it('beeno_tasks_list — retorna lista', async () => {
+  itApi('beeno_tasks_list — retorna lista', async () => {
     const { status, body } = await callTool('beeno_tasks_list', { limit: 5 });
     expect(status).toBe(200);
     const data = parseToolResult(body as Record<string, unknown>) as { total: number };
@@ -220,7 +237,7 @@ describe('Tasks', () => {
 });
 
 describe('Notes', () => {
-  it('beeno_notes_list — retorna notas do contato', async () => {
+  itApi('beeno_notes_list — retorna notas do contato', async () => {
     const { status, body } = await callTool('beeno_notes_list', {
       fromObject: 'contact',
       fromObjectId: contactId,
@@ -232,7 +249,7 @@ describe('Notes', () => {
 });
 
 describe('Forms', () => {
-  it('beeno_forms_list — retorna lista', async () => {
+  itApi('beeno_forms_list — retorna lista', async () => {
     const { status, body } = await callTool('beeno_forms_list', {});
     expect(status).toBe(200);
     const data = parseToolResult(body as Record<string, unknown>) as { results: unknown[] };

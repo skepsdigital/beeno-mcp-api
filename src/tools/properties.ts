@@ -10,8 +10,8 @@ export function registerPropertyTools(server: McpServer, client: BeenoApiClient,
     'List all properties for a given object type. Each property has an "alias" field which is the internal name to use in filters/search (propertyName). The "label" is the display name.',
     {
       objectType: z.enum(['deal', 'contact', 'company']).describe('Object type to list properties for'),
-      filter: z.string().nullable().describe('Filter properties by alias or label (substring, case-insensitive)'),
-      includeOptions: z.boolean().nullable().describe('Include full options array for select/multiselect properties (default: false)')
+      filter: z.string().nullish().describe('Filter properties by alias or label (substring, case-insensitive)'),
+      includeOptions: z.boolean().nullish().describe('Include full options array for select/multiselect properties (default: false)')
     },
     async (params) => {
       try {
@@ -66,13 +66,13 @@ export function registerPropertyTools(server: McpServer, client: BeenoApiClient,
           'date', 'datetime', 'select', 'multiselect', 'text',
           'textarea', 'time', 'number', 'user', 'currency'
         ]).describe('Property data type'),
-        isRequired: z.boolean().nullable().describe('Whether the property is required'),
-        isUniqueIdentifier: z.boolean().nullable().describe('Whether the property is a unique identifier'),
-        isFormVisible: z.boolean().nullable().describe('Whether the property is visible in forms'),
+        isRequired: z.boolean().nullish().describe('Whether the property is required'),
+        isUniqueIdentifier: z.boolean().nullish().describe('Whether the property is a unique identifier'),
+        isFormVisible: z.boolean().nullish().describe('Whether the property is visible in forms'),
         options: z.array(z.object({
           label: z.string().describe('Display label for the option'),
           value: z.string().describe('Internal value for the option')
-        })).nullable().describe('Options list (required for select/multiselect types)')
+        })).nullish().describe('Options list (required for select/multiselect types)')
       },
       async (params) => {
         try {

@@ -54,15 +54,15 @@ export function registerTaskTools(server: McpServer, client: BeenoApiClient, rea
       {
         properties: z.object({
           name: z.string().describe('Task name'),
-          owner: z.number().nullable().describe('Owner user ID'),
-          description: z.string().nullable().describe('Task description'),
-          due_date: z.string().nullable().describe('Due date in YYYY-MM-DD format'),
-          due_time: z.string().nullable().describe('Due time in HH:mm format'),
-          task_type: z.enum(['todo', 'call', 'email', 'whatsapp']).nullable().describe('Type of task'),
-          priority: z.enum(['0', '1', '2']).nullable().describe('Priority: 0=low, 1=medium, 2=high'),
-          source: z.string().nullable().describe('Source of the task'),
-          deals: z.array(z.string()).nullable().describe('Array of deal IDs to associate'),
-          contacts: z.array(z.string()).nullable().describe('Array of contact IDs to associate')
+          owner: z.number().nullish().describe('Owner user ID'),
+          description: z.string().nullish().describe('Task description'),
+          due_date: z.string().nullish().describe('Due date in YYYY-MM-DD format'),
+          due_time: z.string().nullish().describe('Due time in HH:mm format'),
+          task_type: z.enum(['todo', 'call', 'email', 'whatsapp']).nullish().describe('Type of task'),
+          priority: z.enum(['0', '1', '2']).nullish().describe('Priority: 0=low, 1=medium, 2=high'),
+          source: z.string().nullish().describe('Source of the task'),
+          deals: z.array(z.string()).nullish().describe('Array of deal IDs to associate'),
+          contacts: z.array(z.string()).nullish().describe('Array of contact IDs to associate')
         }).describe('Task properties')
       },
       async (params) => {

@@ -11,11 +11,11 @@ export function registerContactTools(server: McpServer, client: BeenoApiClient, 
     'List contacts from Beeno CRM with optional filtering by campaign, segment, and pagination support.',
     {
       ...paginationSchema,
-      campaignId: z.string().nullable().describe('Filter by campaign ID'),
-      segmentId: z.string().nullable().describe('Filter by segment ID'),
-      properties: z.string().nullable().describe('Comma-separated list of property names to include in the response'),
+      campaignId: z.string().nullish().describe('Filter by campaign ID'),
+      segmentId: z.string().nullish().describe('Filter by segment ID'),
+      properties: z.string().nullish().describe('Comma-separated list of property names to include in the response'),
       ...sortSchema,
-      includeAssociations: z.boolean().nullable().describe('Include associated deals and companies')
+      includeAssociations: z.boolean().nullish().describe('Include associated deals and companies')
     },
     async (params) => {
       try {
@@ -62,9 +62,9 @@ export function registerContactTools(server: McpServer, client: BeenoApiClient, 
       {
         properties: z.string().describe('JSON string of contact properties (e.g. {"first_name":"John","email":"john@example.com"})'),
         associations: z.object({
-          deals: z.array(z.number()).nullable().describe('Array of deal IDs to associate'),
-          companies: z.array(z.number()).nullable().describe('Array of company IDs to associate')
-        }).nullable().describe('Optional associations to link to the new contact')
+          deals: z.array(z.number()).nullish().describe('Array of deal IDs to associate'),
+          companies: z.array(z.number()).nullish().describe('Array of company IDs to associate')
+        }).nullish().describe('Optional associations to link to the new contact')
       },
       async (params) => {
         try {
@@ -121,7 +121,7 @@ export function registerContactTools(server: McpServer, client: BeenoApiClient, 
     'Search contacts in Beeno CRM using filters. Use "value" for single-value operators (EQ, NEQ, GT, LT, etc.) and "values" array for IN/NOT_IN. Conditions are AND. Use property "alias" from beeno_properties_list as propertyName. Set fetchAll=true to auto-paginate and return all results.',
     {
       filters: z.array(filterSchema).describe('Array of filter conditions to apply'),
-      properties: z.array(z.string()).nullable().describe('List of property alias names to include in results'),
+      properties: z.array(z.string()).nullish().describe('List of property alias names to include in results'),
       ...paginationSchema,
       sort: sortSchema.sort,
       order: sortSchema.order,

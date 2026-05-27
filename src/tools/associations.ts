@@ -14,10 +14,10 @@ export function registerAssociationTools(server: McpServer, client: BeenoApiClie
       toObject: z.enum(['deal', 'contact', 'company', 'product']).describe('Target object type'),
       toObjectId: z.string().describe('Target object ID'),
       data: z.object({
-        quantity: z.number().nullable().describe('Product quantity (for deal->product)'),
-        linePrice: z.string().nullable().describe('Line price (for deal->product)'),
-        forceUpdateAmount: z.boolean().nullable().describe('Force update deal amount (for deal->product)')
-      }).nullable().describe('Additional data for the association (used for deal->product)')
+        quantity: z.number().nullish().describe('Product quantity (for deal->product)'),
+        linePrice: z.string().nullish().describe('Line price (for deal->product)'),
+        forceUpdateAmount: z.boolean().nullish().describe('Force update deal amount (for deal->product)')
+      }).nullish().describe('Additional data for the association (used for deal->product)')
     },
     async (params) => {
       try {
